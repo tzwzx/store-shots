@@ -23,6 +23,9 @@
   "exports": {
     ".": "./index.ts"
   },
+  "bin": {
+    "store-shots": "./cli.ts"
+  },
   "scripts": {
     "test": "bun test"
   },

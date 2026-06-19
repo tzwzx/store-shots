@@ -1,0 +1,133 @@
+import { expect, test } from "bun:test";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+import { parseInitArgs, patchPackageJson, runInit } from "./init";
+
+test("parseInitArgs defaults to scripts/store-shots with no flags", () => {
+  const opts = parseInitArgs([]);
+  expect(opts).toEqual({ force: false, noScripts: false, targetDir: "scripts/store-shots" });
+});
+
+test("parseInitArgs reads a positional target dir", () => {
+  expect(parseInitArgs(["scripts/shots"]).targetDir).toBe("scripts/shots");
+});
+
+test("parseInitArgs reads --force and --no-scripts", () => {
+  const opts = parseInitArgs(["custom", "--force", "--no-scripts"]);
+  expect(opts).toEqual({ force: true, noScripts: true, targetDir: "custom" });
+});
+
+test("parseInitArgs throws on an unknown flag", () => {
+  expect(() => parseInitArgs(["--bogus"])).toThrow("Unknown flag: --bogus");
+});
+
+const tempProject = (pkg: unknown): string => {
+  const dir = mkdtempSync(join(tmpdir(), "store-shots-"));
+  if (pkg !== undefined) {
+    writeFileSync(join(dir, "package.json"), JSON.stringify(pkg));
+  }
+  return dir;
+};
+
+test("patchPackageJson adds both scripts when absent", async () => {
+  const dir = tempProject({ name: "demo" });
+  const added = await patchPackageJson(dir, "scripts/store-shots");
+  expect(added).toEqual(["store:preview", "store:build"]);
+  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  expect(pkg.scripts["store:preview"]).toBe("bun --watch scripts/store-shots/index.ts preview");
+  expect(pkg.scripts["store:build"]).toBe("bun scripts/store-shots/index.ts build");
+  rmSync(dir, { force: true, recursive: true });
+});
+
+test("patchPackageJson is idempotent on a second run", async () => {
+  const dir = tempProject({ name: "demo" });
+  await patchPackageJson(dir, "scripts/store-shots");
+  const added = await patchPackageJson(dir, "scripts/store-shots");
+  expect(added).toEqual([]);
+  rmSync(dir, { force: true, recursive: true });
+});
+
+test("patchPackageJson leaves an existing store:build untouched", async () => {
+  const dir = tempProject({ name: "demo", scripts: { "store:build": "my own command" } });
+  const added = await patchPackageJson(dir, "scripts/store-shots");
+  expect(added).toEqual(["store:preview"]);
+  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  expect(pkg.scripts["store:build"]).toBe("my own command");
+  rmSync(dir, { force: true, recursive: true });
+});
+
+test("patchPackageJson reflects a custom target dir in the script paths", async () => {
+  const dir = tempProject({ name: "demo" });
+  await patchPackageJson(dir, "tools/shots");
+  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  expect(pkg.scripts["store:build"]).toBe("bun tools/shots/index.ts build");
+  rmSync(dir, { force: true, recursive: true });
+});
+
+test("patchPackageJson is a no-op when package.json is missing", async () => {
+  const dir = tempProject(undefined);
+  const added = await patchPackageJson(dir, "scripts/store-shots");
+  expect(added).toEqual([]);
+  rmSync(dir, { force: true, recursive: true });
+});
+
+const SCAFFOLD_FILES = [
+  "content/config.ts",
+  "content/template.ts",
+  "content/index.ts",
+  "index.ts",
+  "content/assets/.gitkeep",
+];
+
+test("runInit scaffolds every starter file and adds scripts", async () => {
+  const dir = tempProject({ name: "demo" });
+  const result = await runInit([], dir);
+  expect(result.ok).toBe(true);
+  for (const rel of SCAFFOLD_FILES) {
+    expect(await Bun.file(join(dir, "scripts/store-shots", rel)).exists()).toBe(true);
+  }
+  const pkg = JSON.parse(readFileSync(join(dir, "package.json"), "utf8"));
+  expect(pkg.scripts["store:preview"]).toBe("bun --watch scripts/store-shots/index.ts preview");
+  expect(pkg.scripts["store:build"]).toBe("bun scripts/store-shots/index.ts build");
+  rmSync(dir, { force: true, recursive: true });
+});
+
+test("runInit aborts without writing when a destination file exists", async () => {
+  const dir = tempProject({ name: "demo" });
+  mkdirSync(join(dir, "scripts/store-shots/content"), { recursive: true });
+  writeFileSync(join(dir, "scripts/store-shots/content/config.ts"), "PRE-EXISTING");
+  const result = await runInit([], dir);
+  expect(result.ok).toBe(false);
+  expect(result.conflicts).toContain("content/config.ts");
+  // The existing file is untouched and package.json is NOT patched.
+  expect(readFileSync(join(dir, "scripts/store-shots/content/config.ts"), "utf8")).toBe("PRE-EXISTING");
+  expect(JSON.parse(readFileSync(join(dir, "package.json"), "utf8")).scripts).toBeUndefined();
+  rmSync(dir, { force: true, recursive: true });
+});
+
+test("runInit --force overwrites and stays idempotent on scripts", async () => {
+  const dir = tempProject({ name: "demo" });
+  await runInit([], dir);
+  const result = await runInit(["--force"], dir);
+  expect(result.ok).toBe(true);
+  expect(result.addedScripts).toEqual([]);
+  rmSync(dir, { force: true, recursive: true });
+});
+
+test("runInit --no-scripts leaves package.json untouched", async () => {
+  const dir = tempProject({ name: "demo" });
+  const result = await runInit(["--no-scripts"], dir);
+  expect(result.ok).toBe(true);
+  expect(JSON.parse(readFileSync(join(dir, "package.json"), "utf8")).scripts).toBeUndefined();
+  rmSync(dir, { force: true, recursive: true });
+});
+
+test("runInit honors a custom target dir", async () => {
+  const dir = tempProject({ name: "demo" });
+  const result = await runInit(["tools/shots"], dir);
+  expect(result.ok).toBe(true);
+  expect(await Bun.file(join(dir, "tools/shots/index.ts")).exists()).toBe(true);
+  rmSync(dir, { force: true, recursive: true });
+});
