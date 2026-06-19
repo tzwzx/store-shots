@@ -1,0 +1,36 @@
+{
+  "name": "store-shots",
+  "version": "0.1.0",
+  "description": "Generate App Store screenshots where the live preview is the exact final output.",
+  "keywords": [
+    "app-store",
+    "screenshots",
+    "ios",
+    "app-store-connect",
+    "bun",
+    "headless-chrome"
+  ],
+  "homepage": "https://github.com/tzwzx/store-shots#readme",
+  "bugs": "https://github.com/tzwzx/store-shots/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tzwzx/store-shots.git"
+  },
+  "license": "MIT",
+  "author": "Naoto Tazawa (https://github.com/tzwzx)",
+  "type": "module",
+  "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "test": "bun test"
+  },
+  "engines": {
+    "bun": ">=1.3.0"
+  },
+  "devDependencies": {
+    "@happy-dom/global-registrator": "20.10.5",
+    "bun-types": "1.3.14"
+  }
+}

@@ -1,0 +1,7 @@
+[test]
+# Preload bun.setup.ts before tests to register happy-dom globally.
+preload = ["./bun.setup.ts"]
+
+[install]
+# Always add dependencies with exact versions.
+exact = true
