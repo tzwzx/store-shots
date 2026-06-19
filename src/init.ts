@@ -6,7 +6,7 @@ import { mkdir, readdir } from "node:fs/promises";
 import path from "node:path";
 
 // Where the shipped starter lives inside this package.
-const SCAFFOLD_DIR = path.join(import.meta.dir, "scaffold");
+const SCAFFOLD_DIR = path.join(import.meta.dir, "..", "scaffold");
 
 // Default target, relative to the consumer's project root.
 const DEFAULT_TARGET = "scripts/store-shots";

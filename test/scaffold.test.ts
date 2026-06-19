@@ -2,8 +2,8 @@ import { expect, test } from "bun:test";
 
 import type { RenderContext } from "store-shots";
 
-import { canvas, slides } from "./scaffold/content/config";
-import { renderSlideHtml } from "./scaffold/content/template";
+import { canvas, slides } from "../scaffold/content/config";
+import { renderSlideHtml } from "../scaffold/content/template";
 
 const missing: RenderContext = { asset: (relPath) => ({ exists: false, url: `/assets/${relPath}` }) };
 const present: RenderContext = { asset: (relPath) => ({ exists: true, url: `/assets/${relPath}` }) };

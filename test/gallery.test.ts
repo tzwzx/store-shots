@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 
 import { fixture } from "./fixtures";
-import { renderGallery } from "./gallery";
+import { renderGallery } from "../src/gallery";
 
 test("embeds an iframe per slide via /slide/:id", () => {
   const html = renderGallery(fixture);

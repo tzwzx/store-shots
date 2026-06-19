@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { parseInitArgs, patchPackageJson, runInit } from "./init";
+import { parseInitArgs, patchPackageJson, runInit } from "../src/init";
 
 test("parseInitArgs defaults to scripts/store-shots with no flags", () => {
   const opts = parseInitArgs([]);

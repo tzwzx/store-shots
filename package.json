@@ -19,12 +19,12 @@
   "license": "MIT",
   "author": "Naoto Tazawa (https://github.com/tzwzx)",
   "type": "module",
-  "types": "./index.ts",
+  "types": "./src/index.ts",
   "exports": {
-    ".": "./index.ts"
+    ".": "./src/index.ts"
   },
   "bin": {
-    "store-shots": "./cli.ts"
+    "store-shots": "./src/cli.ts"
   },
   "scripts": {
     "test": "bun test"

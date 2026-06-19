@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 
-import { renderContactSheet } from "./contact-sheet";
+import { renderContactSheet } from "../src/contact-sheet";
 
 test("renders an img for each id", () => {
   const html = renderContactSheet(["jp-1", "en-7"]);

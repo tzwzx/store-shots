@@ -2,7 +2,7 @@
 
 import path from "node:path";
 
-import type { RenderContext, SlideBase, StoreShotsContent } from "./types";
+import type { RenderContext, SlideBase, StoreShotsContent } from "../src/types";
 
 interface DemoSlide extends SlideBase {
   title: string;

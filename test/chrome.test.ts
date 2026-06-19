@@ -1,6 +1,6 @@
 import { afterEach, expect, test } from "bun:test";
 
-import { findChrome } from "./chrome";
+import { findChrome } from "../src/chrome";
 
 afterEach(() => {
   delete process.env.CHROME_PATH;
