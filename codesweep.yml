@@ -1,6 +1,7 @@
 check:
   - parallel:
       - bun lint
+      - bun syncpack:lint
       - bun typecheck
       - bun spellcheck
       - bun fallow
@@ -9,6 +10,7 @@ check:
 fix:
   - sequential:
       - bun fix
+      - bun syncpack:fix
   - parallel:
       - bun typecheck
       - bun spellcheck

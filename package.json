@@ -37,6 +37,8 @@
     "spellcheck": "cspell \"**\"",
     "fallow": "fallow",
     "test": "bun test",
+    "syncpack:lint": "syncpack lint",
+    "syncpack:fix": "syncpack fix",
     "codesweep:check": "codesweep check",
     "codesweep:fix": "codesweep fix"
   },
@@ -48,6 +50,7 @@
     "fallow": "3.3.0",
     "oxfmt": "0.58.0",
     "oxlint": "1.73.0",
+    "syncpack": "15.3.2",
     "typescript": "7.0.2",
     "ultracite": "7.9.3"
   },
