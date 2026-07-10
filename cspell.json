@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
+  "files": ["**"],
+  "useGitignore": true,
+  "words": [
+    "bunx",
+    "codesweep",
+    "flexbox",
+    "Hiragino",
+    "letterboxed",
+    "myapp",
+    "Naoto",
+    "Neue",
+    "oxlint",
+    "registrator",
+    "rgba",
+    "simctl",
+    "Tazawa",
+    "tzwzx",
+    "ultracite",
+    "xcrun"
+  ]
+}

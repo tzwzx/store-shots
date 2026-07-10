@@ -35,6 +35,9 @@ export const renderContactSheet = (ids: string[]): string => {
 </html>`;
 };
 
-export const writeContactSheet = async (outputDir: string, ids: string[]): Promise<void> => {
+export const writeContactSheet = async (
+  outputDir: string,
+  ids: string[]
+): Promise<void> => {
   await Bun.write(path.join(outputDir, "index.html"), renderContactSheet(ids));
 };

@@ -11,7 +11,7 @@ const captureOne = async (
   chrome: string,
   url: string,
   outputPath: string,
-  canvas: { height: number; width: number },
+  canvas: { height: number; width: number }
 ): Promise<void> => {
   // Use async spawn. The server runs in the same process, so a synchronous spawnSync would
   // block the event loop and deadlock: the server could not answer Chrome's request.
@@ -27,7 +27,7 @@ const captureOne = async (
       `--screenshot=${outputPath}`,
       url,
     ],
-    { stderr: "pipe", stdout: "ignore" },
+    { stderr: "pipe", stdout: "ignore" }
   );
   await proc.exited;
   if (proc.exitCode !== 0) {
@@ -38,14 +38,16 @@ const captureOne = async (
 
 export const captureSlides = async <TSlide extends SlideBase>(
   content: StoreShotsContent<TSlide>,
-  options: { ids: string[]; outputDir: string },
+  options: { ids: string[]; outputDir: string }
 ): Promise<string[]> => {
   const targets =
     options.ids.length > 0
       ? content.slides.filter((slide) => options.ids.includes(slide.id))
       : content.slides;
   if (targets.length === 0) {
-    throw new Error(`No slides matched the given IDs: ${options.ids.join(", ")}`);
+    throw new Error(
+      `No slides matched the given IDs: ${options.ids.join(", ")}`
+    );
   }
 
   const chrome = findChrome();
@@ -61,7 +63,7 @@ export const captureSlides = async <TSlide extends SlideBase>(
         chrome,
         `http://127.0.0.1:${server.port}/slide/${slide.id}`,
         outputPath,
-        content.canvas,
+        content.canvas
       );
       captured.push(slide.id);
       console.log(`✅ ${slide.id} → ${slide.id}.png`);

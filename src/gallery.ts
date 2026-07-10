@@ -8,17 +8,26 @@ const THUMB_WIDTH = 280;
 const escapeHtml = (text: string): string =>
   text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
-const renderSpecRows = <T extends SlideBase>(content: StoreShotsContent<T>, slide: T): string => {
+const renderSpecRows = <T extends SlideBase>(
+  content: StoreShotsContent<T>,
+  slide: T
+): string => {
   const { specPanel } = content;
   if (!specPanel) {
     return "";
   }
   return specPanel(slide)
-    .map((row) => `<tr><th>${escapeHtml(row.label)}</th><td>${escapeHtml(row.value)}</td></tr>`)
+    .map(
+      (row) =>
+        `<tr><th>${escapeHtml(row.label)}</th><td>${escapeHtml(row.value)}</td></tr>`
+    )
     .join("");
 };
 
-const renderCell = <T extends SlideBase>(content: StoreShotsContent<T>, slide: T): string => {
+const renderCell = <T extends SlideBase>(
+  content: StoreShotsContent<T>,
+  slide: T
+): string => {
   const scale = THUMB_WIDTH / content.canvas.width;
   const thumbHeight = content.canvas.height * scale;
   return `<figure class="cell">
@@ -33,8 +42,12 @@ const renderCell = <T extends SlideBase>(content: StoreShotsContent<T>, slide: T
 	</figure>`;
 };
 
-export const renderGallery = <T extends SlideBase>(content: StoreShotsContent<T>): string => {
-  const cells = content.slides.map((slide) => renderCell(content, slide)).join("");
+export const renderGallery = <T extends SlideBase>(
+  content: StoreShotsContent<T>
+): string => {
+  const cells = content.slides
+    .map((slide) => renderCell(content, slide))
+    .join("");
   return `<!doctype html>
 <html lang="en">
 <head>

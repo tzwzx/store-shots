@@ -5,11 +5,22 @@ import type { RenderContext } from "store-shots";
 import { canvas, slides } from "../scaffold/content/config";
 import { renderSlideHtml } from "../scaffold/content/template";
 
-const missing: RenderContext = { asset: (relPath) => ({ exists: false, url: `/assets/${relPath}` }) };
-const present: RenderContext = { asset: (relPath) => ({ exists: true, url: `/assets/${relPath}` }) };
+const [firstSlide] = slides;
+if (!firstSlide) {
+  throw new Error("scaffold must ship at least one slide");
+}
+
+const missing: RenderContext = {
+  asset: (relPath) => ({ exists: false, url: `/assets/${relPath}` }),
+};
+const present: RenderContext = {
+  asset: (relPath) => ({ exists: true, url: `/assets/${relPath}` }),
+};
 
 test("scaffold RUNBOOK.md documents the reference Maestro capture workflow", async () => {
-  const runbook = await Bun.file(new URL("../scaffold/RUNBOOK.md", import.meta.url)).text();
+  const runbook = await Bun.file(
+    new URL("../scaffold/RUNBOOK.md", import.meta.url)
+  ).text();
   expect(runbook).toContain("maestro");
   expect(runbook).toContain("content/assets");
   expect(runbook).toContain("xcrun simctl");
@@ -26,18 +37,18 @@ test("scaffold ships at least two example slides with unique ids", () => {
 });
 
 test("scaffold renderSlideHtml returns a full document sized to the canvas", () => {
-  const html = renderSlideHtml(slides[0]!, missing);
+  const html = renderSlideHtml(firstSlide, missing);
   expect(html.startsWith("<!doctype html>")).toBe(true);
   expect(html).toContain(`${canvas.width}px`);
   expect(html).toContain(`${canvas.height}px`);
 });
 
 test("scaffold shows a placeholder when the asset is missing", () => {
-  expect(renderSlideHtml(slides[0]!, missing)).toContain("no asset yet");
+  expect(renderSlideHtml(firstSlide, missing)).toContain("no asset yet");
 });
 
 test("scaffold renders an object-fit cover image when the asset exists", () => {
-  const html = renderSlideHtml(slides[0]!, present);
+  const html = renderSlideHtml(firstSlide, present);
   expect(html).toContain("object-fit:cover");
   expect(html).not.toContain("no asset yet");
 });

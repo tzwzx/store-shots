@@ -24,7 +24,9 @@ export const findChrome = (): string => {
   const override = process.env.CHROME_PATH;
   if (override) {
     if (!existsSync(override)) {
-      throw new Error(`CHROME_PATH points to a path that does not exist: ${override}`);
+      throw new Error(
+        `CHROME_PATH points to a path that does not exist: ${override}`
+      );
     }
     return override;
   }
@@ -32,7 +34,7 @@ export const findChrome = (): string => {
   if (!found) {
     throw new Error(
       "No Chrome-family browser found in the common install locations. " +
-        "Set the CHROME_PATH environment variable to your Chrome / Chromium / Edge binary.",
+        "Set the CHROME_PATH environment variable to your Chrome / Chromium / Edge binary."
     );
   }
   return found;

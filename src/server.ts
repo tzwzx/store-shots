@@ -7,7 +7,10 @@ import { renderGallery } from "./gallery";
 import type { RenderContext, SlideBase, StoreShotsContent } from "./types";
 
 // no-store: never let the browser cache the preview, so a reload always shows the latest render.
-const HTML_HEADERS = { "cache-control": "no-store", "content-type": "text/html; charset=utf-8" };
+const HTML_HEADERS = {
+  "cache-control": "no-store",
+  "content-type": "text/html; charset=utf-8",
+};
 
 // Shared asset resolution for preview / build. Returns /assets/<relPath> and only checks existence.
 const makeContext = (assetsDir: string): RenderContext => ({
@@ -19,7 +22,7 @@ const makeContext = (assetsDir: string): RenderContext => ({
 
 export const createServer = <TSlide extends SlideBase>(
   content: StoreShotsContent<TSlide>,
-  options: { port: number },
+  options: { port: number }
 ) => {
   const ctx = makeContext(content.assetsDir);
   return Bun.serve({
@@ -28,7 +31,8 @@ export const createServer = <TSlide extends SlideBase>(
     },
     port: options.port,
     routes: {
-      "/": () => new Response(renderGallery(content), { headers: HTML_HEADERS }),
+      "/": () =>
+        new Response(renderGallery(content), { headers: HTML_HEADERS }),
       "/assets/*": (req) => {
         // In Bun 1.3.x the wildcard is not populated in req.params["*"], so read it from the URL.
         const relPath = new URL(req.url).pathname.slice("/assets/".length);
@@ -43,7 +47,9 @@ export const createServer = <TSlide extends SlideBase>(
         if (!slide) {
           return new Response("Not Found", { status: 404 });
         }
-        return new Response(content.renderSlideHtml(slide, ctx), { headers: HTML_HEADERS });
+        return new Response(content.renderSlideHtml(slide, ctx), {
+          headers: HTML_HEADERS,
+        });
       },
     },
   });

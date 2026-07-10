@@ -2,9 +2,7 @@
 
 A tiny engine for generating **App Store screenshots where the live preview _is_ the final output**.
 
-A live preview server (open it in a browser, or drive it with Playwright) and the final PNGs
-(rendered with headless Chrome) are produced by the **same `/slide/:id` route**, so what you see is
-exactly what you ship — there is no drift between the preview and the submitted image.
+A live preview server (open it in a browser, or drive it with Playwright) and the final PNGs (rendered with headless Chrome) are produced by the **same `/slide/:id` route**, so what you see is exactly what you ship — there is no drift between the preview and the submitted image.
 
 - **Zero runtime dependencies** — only Bun built-ins and an external Chrome.
 - **Bring your own look** — templates are yours; the engine only ever knows `slide.id`.
@@ -13,8 +11,7 @@ exactly what you ship — there is no drift between the preview and the submitte
 
 ## The one idea
 
-The engine and your content have a strict split of responsibilities. Understand this first and
-everything else follows:
+The engine and your content have a strict split of responsibilities. Understand this first and everything else follows:
 
 ```
 your project
@@ -31,23 +28,18 @@ your project
                                  Knows only `slide.id`. Never sees your data shape.
 ```
 
-The folder name is yours; this guide standardizes on `store-shots/` at the project root. See
-[Where to put it](#where-to-put-it) for how placement works.
+The folder name is yours; this guide standardizes on `store-shots/` at the project root. See [Where to put it](#where-to-put-it) for how placement works.
 
-The engine gives you two functions — `runPreview` and `runBuild` — and four types. You give it a
-single `content` object. That's the whole contract.
+The engine gives you two functions — `runPreview` and `runBuild` — and four types. You give it a single `content` object. That's the whole contract.
 
-> **The golden rule:** `renderSlideHtml` is the single render point. Preview thumbnails, the single
-> view, and the final PNG all call it. There is no second "thumbnail" code path that can drift.
+> **The golden rule:** `renderSlideHtml` is the single render point. Preview thumbnails, the single view, and the final PNG all call it. There is no second "thumbnail" code path that can drift.
 
 ---
 
 ## Requirements
 
 - Bun 1.3+
-- A Chrome-family browser (Chrome / Chromium / Edge — auto-detected in the common install locations
-  on macOS, Linux, and Windows). Point to a different binary with the `CHROME_PATH` environment
-  variable (handy on CI or with a custom install location).
+- A Chrome-family browser (Chrome / Chromium / Edge — auto-detected in the common install locations on macOS, Linux, and Windows). Point to a different binary with the `CHROME_PATH` environment variable (handy on CI or with a custom install location).
 
 ## Install
 
@@ -66,12 +58,7 @@ bun add -D -E github:tzwzx/store-shots   # the engine (runPreview / runBuild)
 bunx store-shots init                     # scaffold store-shots/ + add npm scripts
 ```
 
-`init` creates a working starter under `store-shots/` (data, template, CLI, `RUNBOOK.md`,
-and an `assets/` folder), adds `store:preview` / `store:build` to your `package.json`, and
-generates `.claude/commands/store-shots.md` (Claude Code slash command that points the agent at
-`RUNBOOK.md`). It never overwrites existing files — pass `--force` to replace them, `--no-scripts`
-to skip the `package.json` edit, `--no-command` to skip the slash command, or
-`bunx store-shots init <dir>` to choose a different folder.
+`init` creates a working starter under `store-shots/` (data, template, CLI, `RUNBOOK.md`, and an `assets/` folder), adds `store:preview` / `store:build` to your `package.json`, and generates `.claude/commands/store-shots.md` (Claude Code slash command that points the agent at `RUNBOOK.md`). It never overwrites existing files — pass `--force` to replace them, `--no-scripts` to skip the `package.json` edit, `--no-command` to skip the slash command, or `bunx store-shots init <dir>` to choose a different folder.
 
 Verify the pipeline immediately — it renders placeholders until you add real screenshots:
 
@@ -81,17 +68,13 @@ bun run store:preview          # live preview at http://localhost:4317
 bun run store:build 1 2        # build only specific slide ids
 ```
 
-Then make it yours: edit `content/config.ts` (your copy + slide list) and `content/template.ts`
-(your look), and drop screenshots into `content/assets/`. See the [Authoring guide](#authoring-guide).
+Then make it yours: edit `content/config.ts` (your copy + slide list) and `content/template.ts` (your look), and drop screenshots into `content/assets/`. See the [Authoring guide](#authoring-guide).
 
 ---
 
 ## Where to put it
 
-`store-shots init` scaffolds exactly this layout for you at the **project root**. Everything lives
-in **one dedicated folder** so it never tangles with your app's source. This guide standardizes on
-`store-shots/` (matching the package name), but the name is yours — pass it to init as
-`bunx store-shots init <dir>`:
+`store-shots init` scaffolds exactly this layout for you at the **project root**. Everything lives in **one dedicated folder** so it never tangles with your app's source. This guide standardizes on `store-shots/` (matching the package name), but the name is yours — pass it to init as `bunx store-shots init <dir>`:
 
 ```
 store-shots/
@@ -108,8 +91,7 @@ store-shots/
   output/            generated: *.png + index.html (gitignore this)
 ```
 
-**Why a dedicated folder:** generated `output/` is easy to gitignore, the engine's wiring stays out
-of your app's source tree, and the whole tool is trivial to move or delete.
+**Why a dedicated folder:** generated `output/` is easy to gitignore, the engine's wiring stays out of your app's source tree, and the whole tool is trivial to move or delete.
 
 **It works anywhere** — nothing is hard-coded to a location. Placement is decided by just three things:
 
@@ -119,57 +101,42 @@ of your app's source tree, and the whole tool is trivial to move or delete.
 | PNG output dir | `outputDir` in the CLI | `join(import.meta.dir, "output")` — travels with the CLI |
 | CLI entry path | the `store:*` scripts in `package.json` | the only absolute reference |
 
-Because `assetsDir`/`outputDir` are relative to `import.meta.dir`, you can move the whole folder and
-only the `package.json` script paths need updating.
+Because `assetsDir`/`outputDir` are relative to `import.meta.dir`, you can move the whole folder and only the `package.json` script paths need updating.
 
-> Already keeping it on a different path (e.g. a legacy `scripts/store-shots/`)? It keeps working
-> as-is — only the `store:*` script paths in `package.json` need to match.
+> Already keeping it on a different path (e.g. a legacy `scripts/store-shots/`)? It keeps working as-is — only the `store:*` script paths in `package.json` need to match.
 
 ---
 
 ## Authoring guide
 
-`init` gives you a working starter, so this is about making it yours: you're **editing the generated
-`content/config.ts` and `content/template.ts`**, not creating them from scratch.
+`init` gives you a working starter, so this is about making it yours: you're **editing the generated `content/config.ts` and `content/template.ts`**, not creating them from scratch.
 
 ### 1. `content/config.ts` — your data
 
-- `Slide` **must** extend `SlideBase` (i.e. have a string `id`). Everything else is yours: language,
-  background colors, headline text, badges, whatever your template needs.
+- `Slide` **must** extend `SlideBase` (i.e. have a string `id`). Everything else is yours: language, background colors, headline text, badges, whatever your template needs.
 - `canvas` is the output pixel size. Every PNG comes out at exactly `canvas.width × canvas.height`.
 - `slides` is the ordered list. Each `id` becomes the route `/slide/<id>` and the file `<id>.png`.
-- Keep `config.ts` the single source of truth for copy and layout data, so a non-designer can edit
-  wording without touching the template.
+- Keep `config.ts` the single source of truth for copy and layout data, so a non-designer can edit wording without touching the template.
 
 ### 2. `content/template.ts` — your look
 
-`renderSlideHtml(slide, ctx)` returns a **complete HTML document** (start at `<!doctype html>`) for
-one slide. Tips:
+`renderSlideHtml(slide, ctx)` returns a **complete HTML document** (start at `<!doctype html>`) for one slide. Tips:
 
-- Wrap everything in a root element sized to the canvas (`width: ${canvas.width}px; height:
-  ${canvas.height}px; overflow: hidden`). Anything outside is cropped.
-- Resolve images through `ctx.asset(relPath)` — never hard-code `/assets/...`. It returns
-  `{ exists, url }`. Use `exists` to render a placeholder so layout is reviewable before art is ready.
-- Use `object-fit: cover` for screenshots so a device frame stays filled even if the source aspect
-  ratio differs slightly.
+- Wrap everything in a root element sized to the canvas (`width: ${canvas.width}px; height: ${canvas.height}px; overflow: hidden`). Anything outside is cropped.
+- Resolve images through `ctx.asset(relPath)` — never hard-code `/assets/...`. It returns `{ exists, url }`. Use `exists` to render a placeholder so layout is reviewable before art is ready.
+- Use `object-fit: cover` for screenshots so a device frame stays filled even if the source aspect ratio differs slightly.
 - It's plain HTML/CSS rendered by Chrome — flexbox, gradients, `transform`, web fonts, SVG all work.
 
 ### 3. `content/assets/` — your images
 
-- The engine serves this directory at `/assets/*` and checks file existence. **The file names are
-  entirely up to you** — they only need to match the `relPath` you pass to `ctx.asset(...)`.
-- Example convention: `ctx.asset(`${slide.lang}/screen-${slide.screen}.png`)` ⇒ files live at
-  `assets/jp/screen-a.png`, `assets/en/screen-a.png`, etc.
+- The engine serves this directory at `/assets/*` and checks file existence. **The file names are entirely up to you** — they only need to match the `relPath` you pass to `ctx.asset(...)`.
+- Example convention: `ctx.asset(`${slide.lang}/screen-${slide.screen}.png`)` ⇒ files live at `assets/jp/screen-a.png`, `assets/en/screen-a.png`, etc.
 - Missing files are fine: they render as whatever placeholder your template draws.
-- **How to produce the screenshots:** `init` scaffolds `RUNBOOK.md` with a reference workflow —
-  booted iOS Simulator + Maestro driven directly by an AI agent (no dedicated capture script in the
-  package). Edit the runbook for your app's test IDs and per-screen steps — or rewrite it for your
-  platform (Android emulator, Playwright for web, manual capture); drop finished PNGs into `assets/`.
+- **How to produce the screenshots:** `init` scaffolds `RUNBOOK.md` with a reference workflow — booted iOS Simulator + Maestro driven directly by an AI agent (no dedicated capture script in the package). Edit the runbook for your app's test IDs and per-screen steps — or rewrite it for your platform (Android emulator, Playwright for web, manual capture); drop finished PNGs into `assets/`.
 
 ### 4 & 5. `content/index.ts` and the CLI
 
-`init` generates these for you; you rarely touch them. `content/index.ts` bundles your pieces into a
-`StoreShotsContent`. The CLI maps `preview`/`build` to `runPreview`/`runBuild`.
+`init` generates these for you; you rarely touch them. `content/index.ts` bundles your pieces into a `StoreShotsContent`. The CLI maps `preview`/`build` to `runPreview`/`runBuild`.
 
 ---
 
@@ -191,7 +158,12 @@ Because preview and build share one render path, step 5 always matches what you 
 
 ```typescript
 import { runPreview, runBuild } from "store-shots";
-import type { StoreShotsContent, SlideBase, RenderContext, SpecRow } from "store-shots";
+import type {
+  StoreShotsContent,
+  SlideBase,
+  RenderContext,
+  SpecRow,
+} from "store-shots";
 ```
 
 | Export | Signature | Notes |
@@ -206,10 +178,10 @@ import type { StoreShotsContent, SlideBase, RenderContext, SpecRow } from "store
 ```typescript
 interface StoreShotsContent<TSlide extends SlideBase> {
   canvas: { height: number; width: number };
-  assetsDir: string;                                    // absolute path served at /assets/*
+  assetsDir: string; // absolute path served at /assets/*
   slides: TSlide[];
   renderSlideHtml(slide: TSlide, ctx: RenderContext): string;
-  specPanel?(slide: TSlide): SpecRow[];                 // optional spec table in the gallery
+  specPanel?(slide: TSlide): SpecRow[]; // optional spec table in the gallery
 }
 ```
 
@@ -235,11 +207,9 @@ const screen = ctx.asset(`${slide.lang}/screen-${slide.screen}.png`);
 specPanel: (slide) => [{ label: "headline", value: slide.pr }],
 ```
 
-**An icon / closing slide with a different layout** — branch inside `renderSlideHtml` on a field
-(e.g. `slide.screen === "icon"`) and return a different body.
+**An icon / closing slide with a different layout** — branch inside `renderSlideHtml` on a field (e.g. `slide.screen === "icon"`) and return a different body.
 
-**A production-grade device-frame template** with light/dark tone system, per-language typography,
-multi-layer device shadows, and a placeholder fallback — see the collapsible example at the bottom.
+**A production-grade device-frame template** with light/dark tone system, per-language typography, multi-layer device shadows, and a placeholder fallback — see the collapsible example at the bottom.
 
 ---
 
@@ -247,31 +217,23 @@ multi-layer device shadows, and a placeholder fallback — see the collapsible e
 
 Follow this order to scaffold screenshots for a new project. Each step is independently verifiable.
 
-1. **Install & scaffold**: run `bun add -D -E github:tzwzx/store-shots`, then `bunx store-shots init`.
-   This creates `store-shots/` with a working starter, adds the `store:*` scripts, and generates
-   `.claude/commands/store-shots.md` (`/store-shots` in Claude Code).
-2. **Set the canvas size** in the generated `config.ts` (it ships as App Store 6.9" = `1242 × 2688`;
-   change it only if your store listing needs a different size).
-3. **Model the slides** in `config.ts`: replace the example `slides[]` with your own, and extend
-   `Slide extends SlideBase` with whatever fields your template needs. Every `id` must be unique.
+1. **Install & scaffold**: run `bun add -D -E github:tzwzx/store-shots`, then `bunx store-shots init`. This creates `store-shots/` with a working starter, adds the `store:*` scripts, and generates `.claude/commands/store-shots.md` (`/store-shots` in Claude Code).
+2. **Set the canvas size** in the generated `config.ts` (it ships as App Store 6.9" = `1242 × 2688`; change it only if your store listing needs a different size).
+3. **Model the slides** in `config.ts`: replace the example `slides[]` with your own, and extend `Slide extends SlideBase` with whatever fields your template needs. Every `id` must be unique.
 4. **Customize `renderSlideHtml`** in the generated `template.ts`. It must:
    - return a full HTML document sized to `canvas`;
    - resolve every image with `ctx.asset(relPath)` (never a hard-coded `/assets/...`);
    - handle the `!screen.exists` case with a visible placeholder.
 5. **`content/index.ts`** is already wired by `init` (`assetsDir` set); edit only to add `specPanel`.
 6. **The CLI `index.ts` and the `store:*` scripts** are already created by `init` — nothing to do.
-7. **Verify layout**: `bun run store:build` and confirm each PNG is exactly `canvas.width ×
-   canvas.height` (placeholders are expected before art exists).
-8. **Capture assets** per `RUNBOOK.md` (booted simulator + Maestro) into `content/assets/`, named to
-   match your `ctx.asset` paths.
+7. **Verify layout**: `bun run store:build` and confirm each PNG is exactly `canvas.width × canvas.height` (placeholders are expected before art exists).
+8. **Capture assets** per `RUNBOOK.md` (booted simulator + Maestro) into `content/assets/`, named to match your `ctx.asset` paths.
 9. **Final build**: `bun run store:build`, then review `output/index.html`.
 
 **Common mistakes to avoid:**
 
-- ❌ Asset path mismatch — the string in `ctx.asset("...")` must equal the real file path under
-  `assets/`. This is the #1 cause of "image not showing".
-- ❌ Canvas/CSS size mismatch — the root element's `width/height` must equal `canvas`, or content
-  gets cropped or letterboxed.
+- ❌ Asset path mismatch — the string in `ctx.asset("...")` must equal the real file path under `assets/`. This is the #1 cause of "image not showing".
+- ❌ Canvas/CSS size mismatch — the root element's `width/height` must equal `canvas`, or content gets cropped or letterboxed.
 - ❌ Returning a fragment — `renderSlideHtml` must return a full document from `<!doctype html>`.
 - ❌ Forgetting the placeholder branch — without it the preview is blank before art is ready.
 - ❌ Hard-coding `/assets/...` — always go through `ctx.asset` so existence checks work.
@@ -295,10 +257,7 @@ Follow this order to scaffold screenshots for a new project. Each step is indepe
 <details>
 <summary>A complete device-frame template (light/dark tones, per-language type, placeholders). Copy and adapt.</summary>
 
-This is the shape used in a real shipping app, generalized. It demonstrates: deriving per-slide style
-from a single `screen` key, a light/dark tone system, per-language typography, multi-layer device
-shadows, and an alternate "icon" layout for a closing slide. Swap the colors, copy, and `screen`
- enum for your app.
+This is the shape used in a real shipping app, generalized. It demonstrates: deriving per-slide style from a single `screen` key, a light/dark tone system, per-language typography, multi-layer device shadows, and an alternate "icon" layout for a closing slide. Swap the colors, copy, and `screen` enum for your app.
 
 **`content/config.ts`**
 
@@ -320,7 +279,10 @@ export interface Slide extends SlideBase {
 }
 
 // Light/dark rhythm keyed by screen. Bright screens stay light; "hero" moments go dark.
-const SCREEN_STYLE: Record<Screen, { bg: [string, string]; tone: "light" | "dark" }> = {
+const SCREEN_STYLE: Record<
+  Screen,
+  { bg: [string, string]; tone: "light" | "dark" }
+> = {
   a: { bg: ["#EAF3FF", "#C7DCFB"], tone: "light" },
   b: { bg: ["#E7F4FB", "#C2E2F2"], tone: "light" },
   c: { bg: ["#101D3E", "#070D20"], tone: "dark" },
@@ -328,7 +290,10 @@ const SCREEN_STYLE: Record<Screen, { bg: [string, string]; tone: "light" | "dark
   icon: { bg: ["#122A56", "#0A1838"], tone: "dark" },
 };
 
-const deriveFrame = (screen: Screen, tone: "light" | "dark"): Slide["frame"] => {
+const deriveFrame = (
+  screen: Screen,
+  tone: "light" | "dark"
+): Slide["frame"] => {
   if (screen === "icon") {
     return "none";
   }
@@ -408,7 +373,9 @@ interface Asset {
 const DEVICE_HEIGHT = 2038;
 const DEVICE_SCALE = 0.92;
 const DEVICE_BOTTOM = 84;
-const CONTENT_ZONE = Math.round(canvas.height - DEVICE_BOTTOM - DEVICE_HEIGHT * DEVICE_SCALE);
+const CONTENT_ZONE = Math.round(
+  canvas.height - DEVICE_BOTTOM - DEVICE_HEIGHT * DEVICE_SCALE
+);
 
 const escapeHtml = (text: string): string =>
   text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
@@ -485,7 +452,9 @@ const iconBodyHtml = (slide: Slide, screen: Asset): string => {
   const icon = screen.exists
     ? `<img class="app-icon" src="${screen.url}" alt="" />`
     : `<div class="app-icon icon-ph">icon.png<br />missing</div>`;
-  const sub = slide.sub.map((line) => `<div>${escapeHtml(line)}</div>`).join("");
+  const sub = slide.sub
+    .map((line) => `<div>${escapeHtml(line)}</div>`)
+    .join("");
   return `
       <div class="pr pr-abs">${renderPrLines(slide.pr.lines, slide.pr.accent)}</div>
       ${icon}
@@ -493,8 +462,12 @@ const iconBodyHtml = (slide: Slide, screen: Asset): string => {
 };
 
 const standardBodyHtml = (slide: Slide, screen: Asset): string => {
-  const badge = slide.badge ? `<div class="badge">${escapeHtml(slide.badge)}</div>` : "";
-  const sub = slide.sub.map((line) => `<div>${escapeHtml(line)}</div>`).join("");
+  const badge = slide.badge
+    ? `<div class="badge">${escapeHtml(slide.badge)}</div>`
+    : "";
+  const sub = slide.sub
+    .map((line) => `<div>${escapeHtml(line)}</div>`)
+    .join("");
   return `
       <div class="content">
         <div class="pr">${renderPrLines(slide.pr.lines, slide.pr.accent)}</div>
@@ -517,11 +490,15 @@ export const renderSlideHtml = (slide: Slide, ctx: RenderContext): string => {
   const prLine = Math.round(prSize * lang.prLineRatio);
 
   // Both preview and build resolve assets through /assets/*; missing files fall back to a placeholder.
-  const relPath = isIcon ? "icon.png" : `${slide.lang}/screen-${slide.screen}.png`;
+  const relPath = isIcon
+    ? "icon.png"
+    : `${slide.lang}/screen-${slide.screen}.png`;
   const screen = ctx.asset(relPath);
 
   const frameBackground = frameBackgroundCss(slide.frame);
-  const body = isIcon ? iconBodyHtml(slide, screen) : standardBodyHtml(slide, screen);
+  const body = isIcon
+    ? iconBodyHtml(slide, screen)
+    : standardBodyHtml(slide, screen);
 
   return `<!doctype html>
 <html>
@@ -602,11 +579,7 @@ export const renderSlideHtml = (slide: Slide, ctx: RenderContext): string => {
 
 ## How it works
 
-`renderSlideHtml` is the single render point. The preview server and the build step both hit
-`/slide/:id`, so the gallery thumbnails, the single view, and the final PNG are always the same
-render — there is no separate "thumbnail" code path that could drift. Your `renderSlideHtml` can be
-as rich as you like (device frames, gradient glows, floating cards, OCR-friendly layouts, …); the
-engine never looks inside it.
+`renderSlideHtml` is the single render point. The preview server and the build step both hit `/slide/:id`, so the gallery thumbnails, the single view, and the final PNG are always the same render — there is no separate "thumbnail" code path that could drift. Your `renderSlideHtml` can be as rich as you like (device frames, gradient glows, floating cards, OCR-friendly layouts, …); the engine never looks inside it.
 
 ## License
 

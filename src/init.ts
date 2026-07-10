@@ -44,7 +44,10 @@ export const parseInitArgs = (args: string[]): InitOptions => {
 
 // Add store:preview / store:build to <cwd>/package.json if missing. Idempotent.
 // Returns the script keys that were actually added.
-export const patchPackageJson = async (cwd: string, targetDir: string): Promise<string[]> => {
+export const patchPackageJson = async (
+  cwd: string,
+  targetDir: string
+): Promise<string[]> => {
   const pkgPath = path.join(cwd, "package.json");
   const pkgFile = Bun.file(pkgPath);
   if (!(await pkgFile.exists())) {
@@ -54,8 +57,8 @@ export const patchPackageJson = async (cwd: string, targetDir: string): Promise<
   pkg.scripts ??= {};
 
   const wanted: Record<string, string> = {
-    "store:preview": `bun --watch ${targetDir}/index.ts preview`,
     "store:build": `bun ${targetDir}/index.ts build`,
+    "store:preview": `bun --watch ${targetDir}/index.ts preview`,
   };
 
   const added: string[] = [];
@@ -97,7 +100,7 @@ export type CommandWriteResult = "created" | "skipped" | "overwritten";
 export const writeClaudeCommand = async (
   cwd: string,
   targetDir: string,
-  force: boolean,
+  force: boolean
 ): Promise<CommandWriteResult> => {
   const dest = path.join(cwd, CLAUDE_COMMAND_REL);
   const exists = await Bun.file(dest).exists();
@@ -120,77 +123,110 @@ export interface InitResult {
 }
 
 // Recursively list files (paths relative to `base`) under `dir`, including dotfiles.
-const listFilesRecursive = async (dir: string, base: string): Promise<string[]> => {
+const listFilesRecursive = async (
+  dir: string,
+  base: string
+): Promise<string[]> => {
   const entries = await readdir(dir, { withFileTypes: true });
-  const files: string[] = [];
-  for (const entry of entries) {
-    const full = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      files.push(...(await listFilesRecursive(full, base)));
-    } else {
-      files.push(path.relative(base, full));
-    }
+  const nested = await Promise.all(
+    entries.map((entry) => {
+      const full = path.join(dir, entry.name);
+      return entry.isDirectory()
+        ? listFilesRecursive(full, base)
+        : Promise.resolve([path.relative(base, full)]);
+    })
+  );
+  return nested.flat();
+};
+
+// Collect scaffold files that already exist under destRoot.
+const findConflicts = async (
+  destRoot: string,
+  relFiles: string[]
+): Promise<string[]> => {
+  const exists = await Promise.all(
+    relFiles.map((rel) => Bun.file(path.join(destRoot, rel)).exists())
+  );
+  return relFiles.filter((_, index) => exists[index]);
+};
+
+// Result returned when existing files block the scaffold (no --force).
+const buildConflictResult = (
+  targetDir: string,
+  conflicts: string[]
+): InitResult => ({
+  addedScripts: [],
+  commandResult: "disabled",
+  conflicts,
+  createdFiles: [],
+  message:
+    `Aborted: ${targetDir} already contains ${conflicts.join(", ")}.\n` +
+    `Nothing was written. Re-run with --force to overwrite, or pick another dir:\n` +
+    `  bunx store-shots init <dir>`,
+  ok: false,
+  targetDir,
+});
+
+// Copy every scaffold file verbatim, creating parent dirs as needed.
+const copyScaffold = async (
+  destRoot: string,
+  relFiles: string[]
+): Promise<void> => {
+  await Promise.all(
+    relFiles.map(async (rel) => {
+      const dest = path.join(destRoot, rel);
+      await mkdir(path.dirname(dest), { recursive: true });
+      await Bun.write(dest, Bun.file(path.join(SCAFFOLD_DIR, rel)));
+    })
+  );
+};
+
+// Summary line for the package.json patch step.
+const describeScriptPatch = (
+  noScripts: boolean,
+  addedScripts: string[]
+): string => {
+  if (noScripts) {
+    return "package.json: skipped (--no-scripts)";
   }
-  return files;
+  return addedScripts.length > 0
+    ? `package.json scripts added: ${addedScripts.join(", ")}`
+    : "package.json scripts: already present";
+};
+
+// Summary line for the Claude command write step, keyed by its outcome.
+const COMMAND_LINES: Record<CommandWriteResult | "disabled", string> = {
+  created: `Claude command created: ${CLAUDE_COMMAND_REL}`,
+  disabled: "Claude command: skipped (--no-command)",
+  overwritten: `Claude command overwritten: ${CLAUDE_COMMAND_REL}`,
+  skipped: `Claude command: already present (${CLAUDE_COMMAND_REL})`,
 };
 
 // Scaffold the starter into <cwd>/<targetDir> and optionally patch package.json.
-export const runInit = async (args: string[], cwd: string): Promise<InitResult> => {
+export const runInit = async (
+  args: string[],
+  cwd: string
+): Promise<InitResult> => {
   const { force, noCommand, noScripts, targetDir } = parseInitArgs(args);
   const destRoot = path.join(cwd, targetDir);
   const relFiles = await listFilesRecursive(SCAFFOLD_DIR, SCAFFOLD_DIR);
 
   // Abort before writing anything if any destination already exists (unless --force).
   if (!force) {
-    const conflicts: string[] = [];
-    for (const rel of relFiles) {
-      if (await Bun.file(path.join(destRoot, rel)).exists()) {
-        conflicts.push(rel);
-      }
-    }
+    const conflicts = await findConflicts(destRoot, relFiles);
     if (conflicts.length > 0) {
-      return {
-        addedScripts: [],
-        commandResult: "disabled",
-        conflicts,
-        createdFiles: [],
-        message:
-          `Aborted: ${targetDir} already contains ${conflicts.join(", ")}.\n` +
-          `Nothing was written. Re-run with --force to overwrite, or pick another dir:\n` +
-          `  bunx store-shots init <dir>`,
-        ok: false,
-        targetDir,
-      };
+      return buildConflictResult(targetDir, conflicts);
     }
   }
 
-  // Copy every scaffold file verbatim, creating parent dirs as needed.
-  const createdFiles: string[] = [];
-  for (const rel of relFiles) {
-    const dest = path.join(destRoot, rel);
-    await mkdir(path.dirname(dest), { recursive: true });
-    await Bun.write(dest, Bun.file(path.join(SCAFFOLD_DIR, rel)));
-    createdFiles.push(rel);
-  }
+  await copyScaffold(destRoot, relFiles);
+  const createdFiles = relFiles;
 
   // Patch package.json scripts unless suppressed.
   const addedScripts = noScripts ? [] : await patchPackageJson(cwd, targetDir);
-  const scriptLine = noScripts
-    ? "package.json: skipped (--no-scripts)"
-    : addedScripts.length > 0
-      ? `package.json scripts added: ${addedScripts.join(", ")}`
-      : "package.json scripts: already present";
-
   const commandResult = noCommand
     ? "disabled"
     : await writeClaudeCommand(cwd, targetDir, force);
-  const commandLine = noCommand
-    ? "Claude command: skipped (--no-command)"
-    : commandResult === "created"
-      ? `Claude command created: ${CLAUDE_COMMAND_REL}`
-      : commandResult === "overwritten"
-        ? `Claude command overwritten: ${CLAUDE_COMMAND_REL}`
-        : `Claude command: already present (${CLAUDE_COMMAND_REL})`;
 
   return {
     addedScripts,
@@ -200,8 +236,8 @@ export const runInit = async (args: string[], cwd: string): Promise<InitResult> 
     message:
       `Scaffolded store-shots into ${targetDir}/\n` +
       `  Created: ${createdFiles.join(", ")}\n` +
-      `  ${scriptLine}\n` +
-      `  ${commandLine}\n\n` +
+      `  ${describeScriptPatch(noScripts, addedScripts)}\n` +
+      `  ${COMMAND_LINES[commandResult]}\n\n` +
       `Next steps:\n` +
       `  1. bun run store:build      # placeholders -> ${targetDir}/output/*.png (1242x2688)\n` +
       `  2. bun run store:preview    # live preview at http://localhost:4317\n` +

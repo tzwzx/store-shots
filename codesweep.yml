@@ -1,0 +1,16 @@
+check:
+  - parallel:
+      - bun lint
+      - bun typecheck
+      - bun spellcheck
+      - bun fallow
+      - bun test
+
+fix:
+  - sequential:
+      - bun fix
+  - parallel:
+      - bun typecheck
+      - bun spellcheck
+      - bun fallow
+      - bun test

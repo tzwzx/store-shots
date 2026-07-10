@@ -2,8 +2,8 @@ import { afterAll, beforeAll, expect, test } from "bun:test";
 
 import { GlobalRegistrator } from "@happy-dom/global-registrator";
 
-import { fixture } from "./fixtures";
 import { createServer } from "../src/server";
+import { fixture } from "./fixtures";
 
 // The test/setup.ts preload calls GlobalRegistrator.register(), which overrides Bun's native
 // Response / HTTP stack, so we unregister it temporarily before starting the server.
