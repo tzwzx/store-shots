@@ -1,6 +1,5 @@
 {
   "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/main/cspell.schema.json",
   "files": ["**"],
-  "useGitignore": true,
-  "words": []
+  "useGitignore": true
 }

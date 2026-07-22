@@ -43,15 +43,15 @@
     "codesweep:fix": "codesweep fix"
   },
   "devDependencies": {
-    "@happy-dom/global-registrator": "20.10.6",
+    "@happy-dom/global-registrator": "20.11.0",
     "@types/bun": "1.3.14",
-    "@tzwzx/codesweep": "1.1.0",
-    "fallow": "3.3.0",
-    "oxfmt": "0.58.0",
-    "oxlint": "1.73.0",
+    "@tzwzx/codesweep": "1.2.0",
+    "fallow": "3.7.1",
+    "oxfmt": "0.60.0",
+    "oxlint": "1.75.0",
     "syncpack": "15.3.2",
     "typescript": "7.0.2",
-    "ultracite": "7.9.3"
+    "ultracite": "7.9.4"
   },
   "engines": {
     "bun": ">=1.3.0"
