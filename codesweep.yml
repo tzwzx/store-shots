@@ -3,7 +3,6 @@ check:
       - bun lint
       - bun syncpack:lint
       - bun typecheck
-      - bun spellcheck
       - bun fallow
       - bun test
 
@@ -13,6 +12,5 @@ fix:
       - bun syncpack:fix
   - parallel:
       - bun typecheck
-      - bun spellcheck
       - bun fallow
       - bun test

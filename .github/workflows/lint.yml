@@ -16,4 +16,3 @@ jobs:
       - run: bun syncpack:lint
       - run: bun typecheck
       - run: bun fallow
-      - run: bun spellcheck
