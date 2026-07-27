@@ -1,5 +1,7 @@
 # store-shots
 
+English | [日本語](https://github.com/tzwzx/store-shots/blob/main/README.ja.md)
+
 A tiny engine for generating **App Store screenshots where the live preview _is_ the final output**.
 
 A live preview server (open it in a browser, or drive it with Playwright) and the final PNGs (rendered with headless Chrome) are produced by the **same `/slide/:id` route**, so what you see is exactly what you ship — there is no drift between the preview and the submitted image.

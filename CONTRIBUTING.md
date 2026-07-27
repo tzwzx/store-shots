@@ -23,5 +23,6 @@ The engine has **zero runtime dependencies** — please keep it that way. Only B
 ## Guidelines
 
 - Add or update tests for any behavior change (`bun test` must pass).
+- The README is bilingual: when you change `README.md`, mirror the change in `README.ja.md` (code blocks are shared verbatim; only prose is translated).
 - Keep the engine ↔ content contract minimal: the engine must only ever depend on `slide.id` (see `src/types.ts`).
 - CI runs lint + typecheck + fallow and the test suite on every push and pull request (same checks as `bun run codesweep:check`).
