@@ -1,11 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
-  "entry": [
-    "src/index.ts",
-    "src/cli.ts",
-    "oxfmt.config.ts",
-    "oxlint.config.ts",
-  ],
+  // Only oxfmt.config.ts needs a manual entry; the rest are auto-detected.
+  "entry": ["oxfmt.config.ts"],
   "duplicates": {
     "minOccurrences": 3,
   },

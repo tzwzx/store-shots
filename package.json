@@ -35,7 +35,6 @@
     "fix": "oxfmt && oxlint --fix",
     "typecheck": "tsc --noEmit",
     "spellcheck": "bunx cspell \"**\"",
-    "fallow": "fallow",
     "test": "bun test",
     "syncpack:lint": "syncpack lint",
     "syncpack:fix": "syncpack fix",
@@ -43,10 +42,10 @@
     "codesweep:fix": "codesweep fix"
   },
   "devDependencies": {
-    "@happy-dom/global-registrator": "20.11.0",
+    "@happy-dom/global-registrator": "20.11.1",
     "@types/bun": "1.3.14",
-    "@tzwzx/codesweep": "1.2.0",
-    "fallow": "3.7.1",
+    "@tzwzx/codesweep": "1.2.1",
+    "fallow": "3.9.1",
     "oxfmt": "0.60.0",
     "oxlint": "1.75.0",
     "syncpack": "15.3.2",
