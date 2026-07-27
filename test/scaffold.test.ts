@@ -23,6 +23,15 @@ test("scaffold RUNBOOK.md documents the reference Maestro capture workflow", asy
   expect(runbook).toContain("xcrun simctl");
 });
 
+test("scaffold RUNBOOK.md ships a fill-in design brief", async () => {
+  const runbook = await Bun.file(
+    new URL("../scaffold/RUNBOOK.md", import.meta.url)
+  ).text();
+  expect(runbook).toContain("## Design brief");
+  expect(runbook).toContain("Story arc");
+  expect(runbook).toContain("OCR keywords");
+});
+
 test("scaffold canvas is the App Store 6.9-inch size (1320x2868)", () => {
   expect(canvas).toEqual({ height: 2868, width: 1320 });
 });

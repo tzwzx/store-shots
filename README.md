@@ -132,7 +132,7 @@ bunx store-shots init                     # 2. scaffold (also generates the /sto
 
 Two things make the loop work well:
 
-1. **Fill in `RUNBOOK.md` once** — simulator device, test IDs, per-screen capture steps. The runbook is the contract the agent follows; the more concrete it is, the less it asks.
+1. **Fill in `RUNBOOK.md` once** — the design brief (target, tone, story arc, OCR keywords), simulator device, test IDs, per-screen capture steps. The runbook is the contract the agent follows; the more concrete it is, the less it asks — and the design brief is what keeps the agent's visual choices on-brand.
 2. **Keep copy in `config.ts`** — the agent can then iterate on wording and layout separately, and the gallery's spec table lets it cross-check the rendered text.
 
 ### Other agents (Cursor, Codex, Gemini CLI, …)
