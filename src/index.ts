@@ -5,7 +5,11 @@ import { writeContactSheet } from "./contact-sheet";
 import { createServer } from "./server";
 import type { SlideBase, StoreShotsContent } from "./types";
 
+export { CANVAS } from "./canvas";
+export { expandSlides } from "./slides";
 export type {
+  Asset,
+  Canvas,
   RenderContext,
   SlideBase,
   SpecRow,
@@ -23,7 +27,7 @@ export const runPreview = <TSlide extends SlideBase>(
 
 export const runBuild = async <TSlide extends SlideBase>(
   content: StoreShotsContent<TSlide>,
-  options: { ids: string[]; outputDir: string }
+  options: { concurrency?: number; ids: string[]; outputDir: string }
 ): Promise<void> => {
   const captured = await captureSlides(content, options);
   await writeContactSheet(options.outputDir, captured);

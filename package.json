@@ -28,7 +28,9 @@
   "type": "module",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./html": "./src/html.ts",
+    "./testing": "./src/testing.ts"
   },
   "scripts": {
     "lint": "oxfmt --check && oxlint",

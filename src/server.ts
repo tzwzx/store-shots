@@ -4,6 +4,8 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 
 import { renderGallery } from "./gallery";
+import { readPngSize } from "./png";
+import { assertUniqueIds } from "./slides";
 import type { RenderContext, SlideBase, StoreShotsContent } from "./types";
 
 // no-store: never let the browser cache the preview, so a reload always shows the latest render.
@@ -12,18 +14,26 @@ const HTML_HEADERS = {
   "content-type": "text/html; charset=utf-8",
 };
 
-// Shared asset resolution for preview / build. Returns /assets/<relPath> and only checks existence.
-const makeContext = (assetsDir: string): RenderContext => ({
-  asset: (relPath) => ({
-    exists: existsSync(path.join(assetsDir, relPath)),
-    url: `/assets/${relPath}`,
-  }),
+// Shared asset resolution for preview / build. Returns /assets/<relPath>, checks
+// existence, and reports intrinsic PNG dimensions so templates can do crop math.
+export const makeContext = (assetsDir: string): RenderContext => ({
+  asset: (relPath) => {
+    const filePath = path.join(assetsDir, relPath);
+    const exists = existsSync(filePath);
+    const size = exists ? readPngSize(filePath) : null;
+    return {
+      exists,
+      url: `/assets/${relPath}`,
+      ...(size ? { height: size.height, width: size.width } : {}),
+    };
+  },
 });
 
 export const createServer = <TSlide extends SlideBase>(
   content: StoreShotsContent<TSlide>,
   options: { port: number }
 ) => {
+  assertUniqueIds(content.slides);
   const ctx = makeContext(content.assetsDir);
   return Bun.serve({
     fetch() {

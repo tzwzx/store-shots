@@ -5,7 +5,7 @@ import path from "node:path";
 
 import type { StoreShotsContent } from "store-shots";
 
-import { canvas, slides } from "./config";
+import { canvas, slides, specPanel } from "./config";
 import type { Slide } from "./config";
 import { renderSlideHtml } from "./template";
 
@@ -14,4 +14,5 @@ export const content: StoreShotsContent<Slide> = {
   canvas,
   renderSlideHtml,
   slides,
+  specPanel,
 };

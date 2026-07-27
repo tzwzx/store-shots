@@ -7,3 +7,9 @@ test("renders an img for each id", () => {
   expect(html).toContain(`src="jp-1.png"`);
   expect(html).toContain(`src="en-7.png"`);
 });
+
+test("escapes quotes in ids so attribute values cannot break", () => {
+  const html = renderContactSheet([`a"b`]);
+  expect(html).toContain("a&quot;b");
+  expect(html).not.toContain(`src="a"b.png"`);
+});

@@ -3,6 +3,7 @@
 // exactly what gets captured. This is the only render point.
 
 import type { RenderContext } from "store-shots";
+import { escapeHtml } from "store-shots/html";
 
 import { canvas } from "./config";
 import type { Slide } from "./config";
@@ -26,6 +27,6 @@ export const renderSlideHtml = (slide: Slide, ctx: RenderContext): string => {
   .device { width: 900px; height: 1850px; margin: 90px auto 0; border-radius: 90px;
     overflow: hidden; background: #000; }
 </style></head>
-<body><div class="canvas"><h1>${slide.pr}</h1><div class="device">${body}</div></div></body>
+<body><div class="canvas"><h1>${escapeHtml(slide.pr)}</h1><div class="device">${body}</div></div></body>
 </html>`;
 };

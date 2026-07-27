@@ -2,8 +2,7 @@
 
 import path from "node:path";
 
-const escapeHtml = (text: string): string =>
-  text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+import { escapeHtml } from "./html";
 
 export const renderContactSheet = (ids: string[]): string => {
   const cells = ids

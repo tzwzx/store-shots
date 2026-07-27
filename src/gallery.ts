@@ -1,12 +1,10 @@
 // Overview gallery of every slide. Each thumbnail loads /slide/:id in an iframe and only shrinks
 // it with CSS, so its render matches the single view and the final PNG (no separate thumbnail render).
 
+import { escapeHtml } from "./html";
 import type { SlideBase, StoreShotsContent } from "./types";
 
 const THUMB_WIDTH = 280;
-
-const escapeHtml = (text: string): string =>
-  text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 
 const renderSpecRows = <T extends SlideBase>(
   content: StoreShotsContent<T>,

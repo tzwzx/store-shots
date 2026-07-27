@@ -239,7 +239,7 @@ export const runInit = async (
       `  ${describeScriptPatch(noScripts, addedScripts)}\n` +
       `  ${COMMAND_LINES[commandResult]}\n\n` +
       `Next steps:\n` +
-      `  1. bun run store:build      # placeholders -> ${targetDir}/output/*.png (1242x2688)\n` +
+      `  1. bun run store:build      # placeholders -> ${targetDir}/output/*.png (1320x2868)\n` +
       `  2. bun run store:preview    # live preview at http://localhost:4317\n` +
       `  3. Edit content/config.ts + content/template.ts\n` +
       `  4. Capture real screenshots per ${targetDir}/RUNBOOK.md, then drop them in content/assets/.\n` +

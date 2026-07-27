@@ -2,15 +2,23 @@
 // This file is the single source of truth for what each screenshot says.
 // Edit freely — extend Slide with any fields your template needs.
 
-import type { SlideBase } from "store-shots";
+import { CANVAS } from "store-shots";
+import type { SlideBase, SpecRow } from "store-shots";
 
 // A slide describes one screenshot. SlideBase only requires a string `id`.
 export interface Slide extends SlideBase {
   pr: string;
 }
 
-// App Store 6.9" portrait canvas. Every PNG is exactly width x height.
-export const canvas = { height: 2688, width: 1242 };
+// Rows shown under each thumbnail in the preview gallery. Handy for
+// cross-checking the rendered text against the intended copy.
+export const specPanel = (slide: Slide): SpecRow[] => [
+  { label: "PR", value: slide.pr },
+];
+
+// App Store 6.9" portrait canvas (1320x2868). Every PNG is exactly width x height.
+// Other presets: CANVAS.iphone69Alt / iphone65 / ipad13 — or any custom size.
+export const canvas = CANVAS.iphone69;
 
 // Two example slides so `store:build` produces output right away.
 export const slides: Slide[] = [
