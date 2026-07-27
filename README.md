@@ -104,6 +104,35 @@ Then make it yours: edit `content/config.ts` (your copy + slide list) and `conte
 
 ---
 
+## Using with Claude Code
+
+store-shots is built to be driven by an AI coding agent. With Claude Code, the entire workflow is:
+
+```sh
+bun add -D -E github:tzwzx/store-shots   # 1. install the engine
+bunx store-shots init                     # 2. scaffold (also generates the /store-shots command)
+```
+
+```text
+/store-shots                              # 3. run the loop inside Claude Code
+```
+
+`init` writes `.claude/commands/store-shots.md`, so `/store-shots` points the agent at your `store-shots/RUNBOOK.md` and it takes over: start the preview, review the gallery, refine `config.ts` / `template.ts`, capture missing assets from the booted simulator per the runbook, and finish with `store:build`. Pass an argument to scope the run:
+
+```text
+/store-shots recapture screen-c (jp)
+/store-shots rewrite the copy on slide 2
+```
+
+Two things make the loop work well:
+
+1. **Fill in `RUNBOOK.md` once** — simulator device, test IDs, per-screen capture steps. The runbook is the contract the agent follows; the more concrete it is, the less it asks.
+2. **Keep copy in `config.ts`** — the agent can then iterate on wording and layout separately, and the gallery's spec table lets it cross-check the rendered text.
+
+Using another agent (Cursor, Codex, …)? Point it at `RUNBOOK.md` and the [Checklist for AI agents](#checklist-for-ai-agents) — the `/store-shots` command is just a Claude Code convenience wrapper around the same files.
+
+---
+
 ## Where to put it
 
 `store-shots init` scaffolds exactly this layout for you at the **project root**. Everything lives in **one dedicated folder** so it never tangles with your app's source. This guide standardizes on `store-shots/` (matching the package name), but the name is yours — pass it to init as `bunx store-shots init <dir>`:
