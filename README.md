@@ -104,9 +104,13 @@ Then make it yours: edit `content/config.ts` (your copy + slide list) and `conte
 
 ---
 
-## Using with Claude Code
+## Using with AI agents
 
-store-shots is built to be driven by an AI coding agent. With Claude Code, the entire workflow is:
+store-shots is built to be driven by an AI coding agent. Claude Code gets a ready-made command out of the box; any other agent runs the same loop through `RUNBOOK.md`.
+
+### Claude Code
+
+With Claude Code, the entire workflow is:
 
 ```sh
 bun add -D -E github:tzwzx/store-shots   # 1. install the engine
@@ -129,7 +133,13 @@ Two things make the loop work well:
 1. **Fill in `RUNBOOK.md` once** — simulator device, test IDs, per-screen capture steps. The runbook is the contract the agent follows; the more concrete it is, the less it asks.
 2. **Keep copy in `config.ts`** — the agent can then iterate on wording and layout separately, and the gallery's spec table lets it cross-check the rendered text.
 
-Using another agent (Cursor, Codex, …)? Point it at `RUNBOOK.md` and the [Checklist for AI agents](#checklist-for-ai-agents) — the `/store-shots` command is just a Claude Code convenience wrapper around the same files.
+### Other agents (Cursor, Codex, Gemini CLI, …)
+
+The `/store-shots` command is just a pointer at `RUNBOOK.md` — any agent that can read files runs the same loop. Add one note to whatever file your tool loads into every session (`AGENTS.md`, a Cursor rule, `GEMINI.md`, …):
+
+> Store screenshots live in `store-shots/`. For any request about them, read `store-shots/RUNBOOK.md` and follow it end to end (preview → critique → refine → capture → build).
+
+To scaffold a project from scratch, point the agent at the [Checklist for AI agents](#checklist-for-ai-agents) instead.
 
 ---
 
