@@ -38,8 +38,23 @@ The engine gives you two functions — `runPreview` and `runBuild` — and four 
 
 ## Requirements
 
-- Bun 1.3+
+- **Bun 1.3+ — store-shots is a Bun-only package.** It ships TypeScript sources that Bun runs directly (no build step); it does not run under Node.js (`node` / `npx`).
 - A Chrome-family browser (Chrome / Chromium / Edge — auto-detected in the common install locations on macOS, Linux, and Windows). Point to a different binary with the `CHROME_PATH` environment variable (handy on CI or with a custom install location).
+
+### TypeScript setup in the consuming project
+
+Because the engine ships `.ts` sources, your project's `tsconfig.json` type-checks them together with your content. They compile cleanly when:
+
+- `moduleResolution` is `"bundler"` (Bun's default; also common in recent Expo / Vite presets),
+- `target` / `lib` include **ES2021 or later** (`replaceAll`, top-level await),
+- `types` includes `"bun"` (or `"bun-types"`) — the generated CLI uses `import.meta.dir`.
+
+If the host project must keep an incompatible config (e.g. `moduleResolution: "node16"`), add `"exclude": ["store-shots"]` to its `tsconfig.json` and type-check the folder with a nested config instead.
+
+Other toolchain notes:
+
+- Unused-dependency checkers (fallow, knip, depcheck) may flag `store-shots` because it is only referenced from `package.json` scripts — add it to their ignore list.
+- Any tests you add under your content folder run with `bun test`; if your main runner is Jest, wire them into CI explicitly.
 
 ## Install
 
@@ -63,7 +78,7 @@ bunx store-shots init                     # scaffold store-shots/ + add npm scri
 Verify the pipeline immediately — it renders placeholders until you add real screenshots:
 
 ```sh
-bun run store:build            # writes output/*.png (1242x2688) + output/index.html
+bun run store:build            # writes output/*.png (1320x2868) + output/index.html
 bun run store:preview          # live preview at http://localhost:4317
 bun run store:build 1 2        # build only specific slide ids
 ```
@@ -157,11 +172,13 @@ Because preview and build share one render path, step 5 always matches what you 
 ## API reference
 
 ```typescript
-import { runPreview, runBuild } from "store-shots";
+import { runPreview, runBuild, CANVAS, expandSlides } from "store-shots";
 import type {
   StoreShotsContent,
   SlideBase,
   RenderContext,
+  Asset,
+  Canvas,
   SpecRow,
 } from "store-shots";
 ```
@@ -169,15 +186,19 @@ import type {
 | Export | Signature | Notes |
 | --- | --- | --- |
 | `runPreview(content, { port })` | `→ void` | Starts the hot-reloading preview server. |
-| `runBuild(content, { ids, outputDir })` | `→ Promise<void>` | Screenshots slides to `outputDir`. Empty `ids` = all slides. |
-| `SlideBase` | `{ id: string }` | The minimum the engine requires of a slide. |
-| `RenderContext` | `{ asset(relPath) → { exists, url } }` | Passed to `renderSlideHtml`. |
+| `runBuild(content, { ids, outputDir, concurrency? })` | `→ Promise<void>` | Screenshots slides to `outputDir` (up to 4 Chrome instances in parallel by default). Empty `ids` = all slides; an unknown id is an error. Every PNG is verified to be exactly `canvas`-sized. |
+| `CANVAS` | preset canvases | `iphone69` (1320×2868), `iphone69Alt` (1290×2796), `iphone65` (1242×2688), `ipad13` (2064×2752). Any custom size works too — Google Play accepts a wide range. |
+| `expandSlides(langs, seeds, build)` | `→ TSlide[]` | Expand language-agnostic seeds into per-language slides (see Recipes). |
+| `SlideBase` | `{ id: string }` | The minimum the engine requires of a slide. Ids must be unique — the engine rejects duplicates. |
+| `Canvas` | `{ height, width }` | The output pixel size. |
+| `Asset` | `{ exists, url, width?, height? }` | Returned by `ctx.asset`. `width`/`height` are the intrinsic pixel size when the file is an existing PNG — handy for crop math. |
+| `RenderContext` | `{ asset(relPath) → Asset }` | Passed to `renderSlideHtml`. |
 | `SpecRow` | `{ label: string; value: string }` | One row of the optional gallery spec table. |
 | `StoreShotsContent<TSlide>` | see below | The object you provide. |
 
 ```typescript
 interface StoreShotsContent<TSlide extends SlideBase> {
-  canvas: { height: number; width: number };
+  canvas: Canvas; // e.g. CANVAS.iphone69, or any custom size
   assetsDir: string; // absolute path served at /assets/*
   slides: TSlide[];
   renderSlideHtml(slide: TSlide, ctx: RenderContext): string;
@@ -185,19 +206,75 @@ interface StoreShotsContent<TSlide extends SlideBase> {
 }
 ```
 
+### Optional helpers (subpath exports)
+
+| Import from | Export | Notes |
+| --- | --- | --- |
+| `store-shots/html` | `escapeHtml(text)` | HTML-escape `& < > " '` for safe interpolation. |
+| `store-shots/html` | `accentHtml(line, accent)` | Escape a line and wrap every occurrence of `accent` in `<span class="accent">`. |
+| `store-shots/testing` | `makeTestContext({ exists? })` | A `RenderContext` double for unit-testing templates without a server. `exists` is a boolean or a per-path predicate. |
+
 ---
 
 ## Recipes
 
-**Multiple languages** — make `lang` part of the slide and the asset path:
+**Multiple languages** — make `lang` part of the slide and the asset path, and expand one seed list per language with `expandSlides`:
 
 ```typescript
+import { expandSlides } from "store-shots";
+
 export interface Slide extends SlideBase {
   lang: "jp" | "en";
   screen: string;
+  pr: string;
 }
+
+const seeds = [
+  { pr: { en: "Everything.", jp: "ぜんぶ。" }, screen: "a" },
+  { pr: { en: "One tap.", jp: "ワンタップ。" }, screen: "b" },
+];
+
+export const slides: Slide[] = expandSlides(
+  ["jp", "en"] as const,
+  seeds,
+  (lang, seed) => ({
+    id: `${lang}-${seed.screen}`,
+    lang,
+    pr: seed.pr[lang],
+    screen: seed.screen,
+  })
+);
+
 // in template.ts:
 const screen = ctx.asset(`${slide.lang}/screen-${slide.screen}.png`);
+```
+
+**An accent word in the headline** — highlight a substring without hand-rolling the HTML:
+
+```typescript
+import { accentHtml } from "store-shots/html";
+// "Less app. <span class="accent">More done.</span>"
+const headline = accentHtml("Less app. More done.", "More done.");
+// then style .accent in your CSS
+```
+
+**Crop math against the real capture** — `ctx.asset` reports the intrinsic PNG size, so a template can adapt to whatever the simulator produced:
+
+```typescript
+const screen = ctx.asset(`${slide.lang}/screen-${slide.screen}.png`);
+const ratio =
+  screen.width && screen.height ? screen.height / screen.width : 2.17;
+```
+
+**Google Play** — nothing is iOS-specific: set `canvas` to any size the Play Console accepts (e.g. `{ width: 1080, height: 1920 }`) and submit the same PNGs.
+
+**Unit-test your template** — render slides against `makeTestContext` and assert on the HTML:
+
+```typescript
+import { makeTestContext } from "store-shots/testing";
+
+const html = renderSlideHtml(slides[0], makeTestContext({ exists: true }));
+expect(html).toContain("object-fit");
 ```
 
 **A spec table in the gallery** (handy to cross-check rendered text against intended copy):
@@ -218,7 +295,7 @@ specPanel: (slide) => [{ label: "headline", value: slide.pr }],
 Follow this order to scaffold screenshots for a new project. Each step is independently verifiable.
 
 1. **Install & scaffold**: run `bun add -D -E github:tzwzx/store-shots`, then `bunx store-shots init`. This creates `store-shots/` with a working starter, adds the `store:*` scripts, and generates `.claude/commands/store-shots.md` (`/store-shots` in Claude Code).
-2. **Set the canvas size** in the generated `config.ts` (it ships as App Store 6.9" = `1242 × 2688`; change it only if your store listing needs a different size).
+2. **Set the canvas size** in the generated `config.ts` (it ships as App Store 6.9" = `CANVAS.iphone69` = `1320 × 2868`; change it only if your store listing needs a different size — see the `CANVAS` presets).
 3. **Model the slides** in `config.ts`: replace the example `slides[]` with your own, and extend `Slide extends SlideBase` with whatever fields your template needs. Every `id` must be unique.
 4. **Customize `renderSlideHtml`** in the generated `template.ts`. It must:
    - return a full HTML document sized to `canvas`;
@@ -226,7 +303,7 @@ Follow this order to scaffold screenshots for a new project. Each step is indepe
    - handle the `!screen.exists` case with a visible placeholder.
 5. **`content/index.ts`** is already wired by `init` (`assetsDir` set); edit only to add `specPanel`.
 6. **The CLI `index.ts` and the `store:*` scripts** are already created by `init` — nothing to do.
-7. **Verify layout**: `bun run store:build` and confirm each PNG is exactly `canvas.width × canvas.height` (placeholders are expected before art exists).
+7. **Verify layout**: `bun run store:build` (placeholders are expected before art exists). The engine verifies every PNG is exactly `canvas.width × canvas.height` and fails the build otherwise.
 8. **Capture assets** per `RUNBOOK.md` (booted simulator + Maestro) into `content/assets/`, named to match your `ctx.asset` paths.
 9. **Final build**: `bun run store:build`, then review `output/index.html`.
 
@@ -245,6 +322,9 @@ Follow this order to scaffold screenshots for a new project. Each step is indepe
 | Symptom | Fix |
 | --- | --- |
 | `No Chrome-family browser found` | Install Chrome, or set `CHROME_PATH=/path/to/chrome`. |
+| `Generated image has the wrong size` | The browser ignored `--window-size` / `--force-device-scale-factor`. Check what `CHROME_PATH` points at; plain Chrome / Chromium / Edge all work. |
+| `Duplicate slide id(s)` | Two slides share an `id`. Ids become routes and file names, so make them unique. |
+| `Unknown slide id(s)` | A `store:build <id>` argument doesn't match any slide — check the id list in `config.ts`. |
 | Image is blank / placeholder shows despite a file existing | The `ctx.asset(...)` path doesn't match the real file under `assets/`. |
 | PNG is cropped or has empty bars | The root element size doesn't match `canvas`. |
 | Preview doesn't update | `store:preview` uses `--watch`; make sure you ran it via that script and re-navigate. |
@@ -262,6 +342,7 @@ This is the shape used in a real shipping app, generalized. It demonstrates: der
 **`content/config.ts`**
 
 ```typescript
+import { CANVAS } from "store-shots";
 import type { SlideBase, SpecRow } from "store-shots";
 
 // Screen identity. `icon` is the closing slide with a different layout.
@@ -340,7 +421,8 @@ const baseSlides: SlideSeed[] = [
 
 export const slides: Slide[] = baseSlides.map(styled);
 
-export const canvas = { height: 2688, width: 1242 };
+// This example's absolute layout constants target 1242x2688 (6.5").
+export const canvas = CANVAS.iphone65;
 
 export const specPanel = (slide: Slide): SpecRow[] => {
   const rows: SpecRow[] = [
@@ -359,15 +441,11 @@ export const specPanel = (slide: Slide): SpecRow[] => {
 **`content/template.ts`**
 
 ```typescript
-import type { RenderContext } from "store-shots";
+import type { Asset, RenderContext } from "store-shots";
+import { accentHtml, escapeHtml } from "store-shots/html";
 
 import { canvas } from "./config";
 import type { Slide } from "./config";
-
-interface Asset {
-  exists: boolean;
-  url: string;
-}
 
 // Float the device off the bottom and scale it down so text has a stable zone above it.
 const DEVICE_HEIGHT = 2038;
@@ -377,18 +455,9 @@ const CONTENT_ZONE = Math.round(
   canvas.height - DEVICE_BOTTOM - DEVICE_HEIGHT * DEVICE_SCALE
 );
 
-const escapeHtml = (text: string): string =>
-  text.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;");
-
-// Wrap only the `accent` substring of each PR line in <span class="accent">.
+// Wrap the `accent` substring of each PR line in <span class="accent">.
 const renderPrLines = (lines: string[], accent: string): string =>
-  lines
-    .map((line) => {
-      const escaped = escapeHtml(line);
-      const escapedAccent = escapeHtml(accent);
-      return `<div>${escaped.replace(escapedAccent, `<span class="accent">${escapedAccent}</span>`)}</div>`;
-    })
-    .join("");
+  lines.map((line) => `<div>${accentHtml(line, accent)}</div>`).join("");
 
 // Per-language typography tokens.
 interface LangTokens {
