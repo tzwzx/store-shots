@@ -9,6 +9,23 @@ A live preview server (open it in a browser, or drive it with Playwright) and th
 
 ---
 
+## What it looks like
+
+<p>
+  <img src="https://raw.githubusercontent.com/tzwzx/store-shots/main/docs/images/showcase-1.png" width="195" alt="Sample slide: Everything in one place" />
+  <img src="https://raw.githubusercontent.com/tzwzx/store-shots/main/docs/images/showcase-2.png" width="195" alt="Sample slide: Thought it? Captured." />
+  <img src="https://raw.githubusercontent.com/tzwzx/store-shots/main/docs/images/showcase-3.png" width="195" alt="Sample slide: Beautiful after dark" />
+  <img src="https://raw.githubusercontent.com/tzwzx/store-shots/main/docs/images/showcase-4.png" width="195" alt="Sample slide: closing slide with app icon" />
+</p>
+
+These four PNGs come straight out of `runBuild` for a fictional to-do app — see [`examples/showcase`](examples/showcase). The "app screenshots" inside the device frames are drawn entirely with HTML/CSS in the template: no app, no simulator, no image assets. Reproduce them with `bun examples/showcase/index.ts build`.
+
+The hot-reloading preview gallery (`bun examples/showcase/index.ts preview`) shows every slide next to its optional spec table, and is the exact same render you ship:
+
+<img src="https://raw.githubusercontent.com/tzwzx/store-shots/main/docs/images/preview-gallery.png" width="820" alt="Preview gallery with spec tables" />
+
+---
+
 ## The one idea
 
 The engine and your content have a strict split of responsibilities. Understand this first and everything else follows:

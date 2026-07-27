@@ -1,7 +1,7 @@
 {
   "$schema": "https://raw.githubusercontent.com/fallow-rs/fallow/main/schema.json",
-  // Only oxfmt.config.ts needs a manual entry; the rest are auto-detected.
-  "entry": ["oxfmt.config.ts"],
+  // oxfmt.config.ts and the example CLIs need manual entries; the rest are auto-detected.
+  "entry": ["oxfmt.config.ts", "examples/*/index.ts"],
   "duplicates": {
     "minOccurrences": 3,
   },

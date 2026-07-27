@@ -17,6 +17,7 @@ The engine has **zero runtime dependencies** — please keep it that way. Only B
 
 - `src/` — the engine (published API + `store-shots init` CLI)
 - `scaffold/` — the starter copied verbatim into consumer projects by `init`
+- `examples/showcase/` — the fictional to-do app that generates the README sample images (`bun examples/showcase/index.ts build`; images are committed under `docs/images/`)
 - `test/` — `bun test` suite; `test/setup.ts` registers happy-dom globally
 
 ## Guidelines
