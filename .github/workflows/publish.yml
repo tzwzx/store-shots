@@ -1,0 +1,31 @@
+name: Publish
+
+# Publishes to npm when a GitHub Release is published.
+# Authentication uses npm trusted publishing (OIDC) — no NPM_TOKEN secret needed.
+# One-time setup: on npmjs.com, add this repo + workflow as a trusted publisher
+# for the @tzwzx/store-shots package (Settings → Trusted Publisher).
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write # required for npm trusted publishing / provenance
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      # Trusted publishing requires a recent npm; the runner's default may be too old.
+      # Pinned to npm 11: npm 12.0.0 breaks `npm publish` on Node 22
+      # (MODULE_NOT_FOUND: sigstore in libnpmpublish provenance).
+      - run: npm install -g npm@11
+      # The package ships TypeScript sources, so there is no build step and no
+      # dependency install. Provenance is attached automatically via OIDC.
+      - run: npm publish
