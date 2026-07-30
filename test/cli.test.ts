@@ -36,7 +36,8 @@ test("package.json declares the store-shots bin", async () => {
   const pkg = await Bun.file(
     path.join(import.meta.dir, "..", "package.json")
   ).json();
-  expect(pkg.bin["store-shots"]).toBe("./src/cli.ts");
+  // No leading "./" — npm normalizes it away at publish time and warns about it.
+  expect(pkg.bin["store-shots"]).toBe("src/cli.ts");
 });
 
 test("cli.ts starts with the bun shebang", async () => {

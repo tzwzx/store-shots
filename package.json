@@ -19,7 +19,7 @@
     "url": "git+https://github.com/tzwzx/store-shots.git"
   },
   "bin": {
-    "store-shots": "./src/cli.ts"
+    "store-shots": "src/cli.ts"
   },
   "files": [
     "scaffold",
