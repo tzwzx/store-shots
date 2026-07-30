@@ -3,7 +3,7 @@
 
 import path from "node:path";
 
-import type { StoreShotsContent } from "store-shots";
+import type { StoreShotsContent } from "@tzwzx/store-shots";
 
 import { canvas, slides, specPanel } from "./config";
 import type { Slide } from "./config";

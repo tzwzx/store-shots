@@ -1,8 +1,8 @@
 // The look of the showcase slides. Everything inside the device frame is
 // drawn with plain HTML/CSS — no app, no simulator, no image assets.
 
-import type { RenderContext } from "store-shots";
-import { accentHtml, escapeHtml } from "store-shots/html";
+import type { RenderContext } from "@tzwzx/store-shots";
+import { accentHtml, escapeHtml } from "@tzwzx/store-shots/html";
 
 import { canvas } from "./config";
 import type { Slide } from "./config";

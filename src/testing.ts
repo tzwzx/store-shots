@@ -1,4 +1,4 @@
-// Test double for templates. Optional: import from "store-shots/testing".
+// Test double for templates. Optional: import from "@tzwzx/store-shots/testing".
 // Lets content-side tests exercise renderSlideHtml without a running server.
 
 import type { RenderContext } from "./types";

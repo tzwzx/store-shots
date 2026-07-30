@@ -1,4 +1,4 @@
-// Small HTML helpers for templates. Optional: import from "store-shots/html".
+// Small HTML helpers for templates. Optional: import from "@tzwzx/store-shots/html".
 // Kept out of the package root so the engine <-> content contract stays minimal.
 
 /** Escape text for safe interpolation into HTML (both element and attribute positions). */

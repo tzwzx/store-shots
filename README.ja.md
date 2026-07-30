@@ -2,6 +2,8 @@
 
 [English](https://github.com/tzwzx/store-shots/blob/main/README.md) | 日本語
 
+[![npm version](https://img.shields.io/npm/v/@tzwzx/store-shots.svg)](https://www.npmjs.com/package/@tzwzx/store-shots) [![license](https://img.shields.io/npm/l/@tzwzx/store-shots.svg)](./LICENSE)
+
 **ライブプレビューがそのまま最終出力になる** App Store スクリーンショット生成エンジンです。
 
 ライブプレビューサーバー（ブラウザで開いても、Playwright で操作しても OK）と最終 PNG（ヘッドレス Chrome でレンダリング）は、**同じ `/slide/:id` ルート**から生成されます。つまり、見たままのものがそのまま提出物になり、プレビューと提出画像の間にズレは存在しません。
@@ -43,7 +45,7 @@ your project
 │  │  └─ assets/                ctx.asset(...) でテンプレートから参照する画像
 │  ├─ index.ts                 小さな CLI: `preview` | `build`
 │  └─ output/                  生成された PNG（gitignore 推奨）
-└─ node_modules/store-shots    ← エンジン（このパッケージ）。/slide/:id を配信して撮影する。
+└─ node_modules/@tzwzx/store-shots    ← エンジン（このパッケージ）。/slide/:id を配信して撮影する。
                                  知っているのは `slide.id` だけ。データの形は一切見ない。
 ```
 
@@ -72,13 +74,13 @@ your project
 
 その他のツールチェーン補足：
 
-- 未使用依存チェッカー（fallow、knip、depcheck）は、`store-shots` が `package.json` の scripts からしか参照されないため未使用と誤検知することがあります — ignore リストに追加してください。
+- 未使用依存チェッカー（fallow、knip、depcheck）は、`@tzwzx/store-shots` が `package.json` の scripts からしか参照されないため未使用と誤検知することがあります — ignore リストに追加してください。
 - コンテンツフォルダ配下に追加したテストは `bun test` で動きます。メインのテストランナーが Jest の場合は、CI への組み込みを明示的に行ってください。
 
 ## インストール
 
 ```sh
-bun add -D -E github:tzwzx/store-shots
+bun add -D -E @tzwzx/store-shots
 ```
 
 ---
@@ -88,8 +90,8 @@ bun add -D -E github:tzwzx/store-shots
 エンジンをインストールし、スターターをプロジェクトに scaffold します：
 
 ```sh
-bun add -D -E github:tzwzx/store-shots   # エンジン本体（runPreview / runBuild）
-bunx store-shots init                     # store-shots/ を scaffold + npm scripts を追加
+bun add -D -E @tzwzx/store-shots   # エンジン本体（runPreview / runBuild）
+bunx store-shots init              # store-shots/ を scaffold + npm scripts を追加
 ```
 
 `init` は `store-shots/` 配下に動作するスターター（データ、テンプレート、CLI、`RUNBOOK.md`、`assets/` フォルダ）を生成し、`package.json` に `store:preview` / `store:build` を追加し、`.claude/commands/store-shots.md`（エージェントを `RUNBOOK.md` に誘導する Claude Code スラッシュコマンド）を生成します。既存ファイルは決して上書きしません — 上書きするには `--force`、`package.json` の編集をスキップするには `--no-scripts`、スラッシュコマンドをスキップするには `--no-command`、別のフォルダ名にするには `bunx store-shots init <dir>` を使います。
@@ -115,8 +117,8 @@ store-shots は AI コーディングエージェントに運転させる前提�
 Claude Code なら、ワークフロー全体は次のとおりです：
 
 ```sh
-bun add -D -E github:tzwzx/store-shots   # 1. エンジンをインストール
-bunx store-shots init                     # 2. scaffold（/store-shots コマンドも生成される）
+bun add -D -E @tzwzx/store-shots   # 1. エンジンをインストール
+bunx store-shots init              # 2. scaffold（/store-shots コマンドも生成される）
 ```
 
 ```text
@@ -230,7 +232,7 @@ store-shots/
 ## API リファレンス
 
 ```typescript
-import { runPreview, runBuild, CANVAS, expandSlides } from "store-shots";
+import { runPreview, runBuild, CANVAS, expandSlides } from "@tzwzx/store-shots";
 import type {
   StoreShotsContent,
   SlideBase,
@@ -238,7 +240,7 @@ import type {
   Asset,
   Canvas,
   SpecRow,
-} from "store-shots";
+} from "@tzwzx/store-shots";
 ```
 
 | Export | シグネチャ | 説明 |
@@ -279,7 +281,7 @@ interface StoreShotsContent<TSlide extends SlideBase> {
 **多言語対応** — `lang` をスライドとアセットパスの一部にし、言語ごとのシード展開は `expandSlides` で：
 
 ```typescript
-import { expandSlides } from "store-shots";
+import { expandSlides } from "@tzwzx/store-shots";
 
 export interface Slide extends SlideBase {
   lang: "jp" | "en";
@@ -310,7 +312,7 @@ const screen = ctx.asset(`${slide.lang}/screen-${slide.screen}.png`);
 **見出しのアクセントワード** — HTML を手書きせずに部分文字列をハイライト：
 
 ```typescript
-import { accentHtml } from "store-shots/html";
+import { accentHtml } from "@tzwzx/store-shots/html";
 // "Less app. <span class="accent">More done.</span>"
 const headline = accentHtml("Less app. More done.", "More done.");
 // then style .accent in your CSS
@@ -329,7 +331,7 @@ const ratio =
 **テンプレートの単体テスト** — `makeTestContext` に対してスライドをレンダリングし、HTML をアサート：
 
 ```typescript
-import { makeTestContext } from "store-shots/testing";
+import { makeTestContext } from "@tzwzx/store-shots/testing";
 
 const html = renderSlideHtml(slides[0], makeTestContext({ exists: true }));
 expect(html).toContain("object-fit");
@@ -352,7 +354,7 @@ specPanel: (slide) => [{ label: "headline", value: slide.pr }],
 
 新しいプロジェクトにスクリーンショットを scaffold する際は、この順序に従ってください。各ステップは独立して検証可能です。
 
-1. **インストールと scaffold**: `bun add -D -E github:tzwzx/store-shots` を実行し、続けて `bunx store-shots init`。動作するスターター入りの `store-shots/` が作られ、`store:*` scripts が追加され、`.claude/commands/store-shots.md`（Claude Code の `/store-shots`）が生成されます。
+1. **インストールと scaffold**: `bun add -D -E @tzwzx/store-shots` を実行し、続けて `bunx store-shots init`。動作するスターター入りの `store-shots/` が作られ、`store:*` scripts が追加され、`.claude/commands/store-shots.md`（Claude Code の `/store-shots`）が生成されます。
 2. **キャンバスサイズを設定**: 生成された `config.ts` で設定します（初期値は App Store 6.9" = `CANVAS.iphone69` = `1320 × 2868`。ストア掲載が別サイズを要求する場合のみ変更 — `CANVAS` プリセット参照）。
 3. **スライドをモデリング**: `config.ts` のサンプル `slides[]` を自分のものに置き換え、テンプレートが必要とするフィールドで `Slide extends SlideBase` を拡張します。すべての `id` は一意であること。
 4. **`renderSlideHtml` をカスタマイズ**: 生成された `template.ts` で行います。必須条件：
@@ -400,8 +402,8 @@ specPanel: (slide) => [{ label: "headline", value: slide.pr }],
 **`content/config.ts`**
 
 ```typescript
-import { CANVAS } from "store-shots";
-import type { SlideBase, SpecRow } from "store-shots";
+import { CANVAS } from "@tzwzx/store-shots";
+import type { SlideBase, SpecRow } from "@tzwzx/store-shots";
 
 // Screen identity. `icon` is the closing slide with a different layout.
 export type Screen = "a" | "b" | "c" | "d" | "icon";
@@ -499,8 +501,8 @@ export const specPanel = (slide: Slide): SpecRow[] => {
 **`content/template.ts`**
 
 ```typescript
-import type { Asset, RenderContext } from "store-shots";
-import { accentHtml, escapeHtml } from "store-shots/html";
+import type { Asset, RenderContext } from "@tzwzx/store-shots";
+import { accentHtml, escapeHtml } from "@tzwzx/store-shots/html";
 
 import { canvas } from "./config";
 import type { Slide } from "./config";

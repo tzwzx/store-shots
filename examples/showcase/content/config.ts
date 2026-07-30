@@ -2,8 +2,8 @@
 // Nothing here comes from a real app: the screens inside the device frame are
 // drawn with plain HTML/CSS in template.ts.
 
-import { CANVAS } from "store-shots";
-import type { SlideBase, SpecRow } from "store-shots";
+import { CANVAS } from "@tzwzx/store-shots";
+import type { SlideBase, SpecRow } from "@tzwzx/store-shots";
 
 /** Which mock screen the device frame shows. `icon` is the closing slide. */
 export type Screen = "today" | "add" | "dark" | "icon";

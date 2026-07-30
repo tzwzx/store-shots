@@ -2,8 +2,8 @@
 // The same /slide/:id output drives both preview and build, so what you see is
 // exactly what gets captured. This is the only render point.
 
-import type { RenderContext } from "store-shots";
-import { escapeHtml } from "store-shots/html";
+import type { RenderContext } from "@tzwzx/store-shots";
+import { escapeHtml } from "@tzwzx/store-shots/html";
 
 import { canvas } from "./config";
 import type { Slide } from "./config";

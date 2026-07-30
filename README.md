@@ -2,6 +2,8 @@
 
 English | [日本語](https://github.com/tzwzx/store-shots/blob/main/README.ja.md)
 
+[![npm version](https://img.shields.io/npm/v/@tzwzx/store-shots.svg)](https://www.npmjs.com/package/@tzwzx/store-shots) [![license](https://img.shields.io/npm/l/@tzwzx/store-shots.svg)](./LICENSE)
+
 A tiny engine for generating **App Store screenshots where the live preview _is_ the final output**.
 
 A live preview server (open it in a browser, or drive it with Playwright) and the final PNGs (rendered with headless Chrome) are produced by the **same `/slide/:id` route**, so what you see is exactly what you ship — there is no drift between the preview and the submitted image.
@@ -43,7 +45,7 @@ your project
 │  │  └─ assets/                images your template references via ctx.asset(...)
 │  ├─ index.ts                 tiny CLI: `preview` | `build`
 │  └─ output/                  generated PNGs (gitignore this)
-└─ node_modules/store-shots    ← the ENGINE (this package). Serves /slide/:id, screenshots it.
+└─ node_modules/@tzwzx/store-shots    ← the ENGINE (this package). Serves /slide/:id, screenshots it.
                                  Knows only `slide.id`. Never sees your data shape.
 ```
 
@@ -72,13 +74,13 @@ If the host project must keep an incompatible config (e.g. `moduleResolution: "n
 
 Other toolchain notes:
 
-- Unused-dependency checkers (fallow, knip, depcheck) may flag `store-shots` because it is only referenced from `package.json` scripts — add it to their ignore list.
+- Unused-dependency checkers (fallow, knip, depcheck) may flag `@tzwzx/store-shots` because it is only referenced from `package.json` scripts — add it to their ignore list.
 - Any tests you add under your content folder run with `bun test`; if your main runner is Jest, wire them into CI explicitly.
 
 ## Install
 
 ```sh
-bun add -D -E github:tzwzx/store-shots
+bun add -D -E @tzwzx/store-shots
 ```
 
 ---
@@ -88,8 +90,8 @@ bun add -D -E github:tzwzx/store-shots
 Install the engine, then scaffold a starter into your project:
 
 ```sh
-bun add -D -E github:tzwzx/store-shots   # the engine (runPreview / runBuild)
-bunx store-shots init                     # scaffold store-shots/ + add npm scripts
+bun add -D -E @tzwzx/store-shots   # the engine (runPreview / runBuild)
+bunx store-shots init              # scaffold store-shots/ + add npm scripts
 ```
 
 `init` creates a working starter under `store-shots/` (data, template, CLI, `RUNBOOK.md`, and an `assets/` folder), adds `store:preview` / `store:build` to your `package.json`, and generates `.claude/commands/store-shots.md` (Claude Code slash command that points the agent at `RUNBOOK.md`). It never overwrites existing files — pass `--force` to replace them, `--no-scripts` to skip the `package.json` edit, `--no-command` to skip the slash command, or `bunx store-shots init <dir>` to choose a different folder.
@@ -115,8 +117,8 @@ store-shots is built to be driven by an AI coding agent. Claude Code gets a read
 With Claude Code, the entire workflow is:
 
 ```sh
-bun add -D -E github:tzwzx/store-shots   # 1. install the engine
-bunx store-shots init                     # 2. scaffold (also generates the /store-shots command)
+bun add -D -E @tzwzx/store-shots   # 1. install the engine
+bunx store-shots init              # 2. scaffold (also generates the /store-shots command)
 ```
 
 ```text
@@ -230,7 +232,7 @@ Because preview and build share one render path, step 5 always matches what you 
 ## API reference
 
 ```typescript
-import { runPreview, runBuild, CANVAS, expandSlides } from "store-shots";
+import { runPreview, runBuild, CANVAS, expandSlides } from "@tzwzx/store-shots";
 import type {
   StoreShotsContent,
   SlideBase,
@@ -238,7 +240,7 @@ import type {
   Asset,
   Canvas,
   SpecRow,
-} from "store-shots";
+} from "@tzwzx/store-shots";
 ```
 
 | Export | Signature | Notes |
@@ -279,7 +281,7 @@ interface StoreShotsContent<TSlide extends SlideBase> {
 **Multiple languages** — make `lang` part of the slide and the asset path, and expand one seed list per language with `expandSlides`:
 
 ```typescript
-import { expandSlides } from "store-shots";
+import { expandSlides } from "@tzwzx/store-shots";
 
 export interface Slide extends SlideBase {
   lang: "jp" | "en";
@@ -310,7 +312,7 @@ const screen = ctx.asset(`${slide.lang}/screen-${slide.screen}.png`);
 **An accent word in the headline** — highlight a substring without hand-rolling the HTML:
 
 ```typescript
-import { accentHtml } from "store-shots/html";
+import { accentHtml } from "@tzwzx/store-shots/html";
 // "Less app. <span class="accent">More done.</span>"
 const headline = accentHtml("Less app. More done.", "More done.");
 // then style .accent in your CSS
@@ -329,7 +331,7 @@ const ratio =
 **Unit-test your template** — render slides against `makeTestContext` and assert on the HTML:
 
 ```typescript
-import { makeTestContext } from "store-shots/testing";
+import { makeTestContext } from "@tzwzx/store-shots/testing";
 
 const html = renderSlideHtml(slides[0], makeTestContext({ exists: true }));
 expect(html).toContain("object-fit");
@@ -352,7 +354,7 @@ specPanel: (slide) => [{ label: "headline", value: slide.pr }],
 
 Follow this order to scaffold screenshots for a new project. Each step is independently verifiable.
 
-1. **Install & scaffold**: run `bun add -D -E github:tzwzx/store-shots`, then `bunx store-shots init`. This creates `store-shots/` with a working starter, adds the `store:*` scripts, and generates `.claude/commands/store-shots.md` (`/store-shots` in Claude Code).
+1. **Install & scaffold**: run `bun add -D -E @tzwzx/store-shots`, then `bunx store-shots init`. This creates `store-shots/` with a working starter, adds the `store:*` scripts, and generates `.claude/commands/store-shots.md` (`/store-shots` in Claude Code).
 2. **Set the canvas size** in the generated `config.ts` (it ships as App Store 6.9" = `CANVAS.iphone69` = `1320 × 2868`; change it only if your store listing needs a different size — see the `CANVAS` presets).
 3. **Model the slides** in `config.ts`: replace the example `slides[]` with your own, and extend `Slide extends SlideBase` with whatever fields your template needs. Every `id` must be unique.
 4. **Customize `renderSlideHtml`** in the generated `template.ts`. It must:
@@ -400,8 +402,8 @@ This is the shape used in a real shipping app, generalized. It demonstrates: der
 **`content/config.ts`**
 
 ```typescript
-import { CANVAS } from "store-shots";
-import type { SlideBase, SpecRow } from "store-shots";
+import { CANVAS } from "@tzwzx/store-shots";
+import type { SlideBase, SpecRow } from "@tzwzx/store-shots";
 
 // Screen identity. `icon` is the closing slide with a different layout.
 export type Screen = "a" | "b" | "c" | "d" | "icon";
@@ -499,8 +501,8 @@ export const specPanel = (slide: Slide): SpecRow[] => {
 **`content/template.ts`**
 
 ```typescript
-import type { Asset, RenderContext } from "store-shots";
-import { accentHtml, escapeHtml } from "store-shots/html";
+import type { Asset, RenderContext } from "@tzwzx/store-shots";
+import { accentHtml, escapeHtml } from "@tzwzx/store-shots/html";
 
 import { canvas } from "./config";
 import type { Slide } from "./config";

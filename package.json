@@ -1,6 +1,6 @@
 {
-  "name": "store-shots",
-  "version": "0.1.0",
+  "name": "@tzwzx/store-shots",
+  "version": "1.0.0",
   "description": "Generate App Store screenshots where the live preview is the exact final output.",
   "keywords": [
     "app-store",
@@ -23,7 +23,9 @@
   },
   "files": [
     "scaffold",
-    "src"
+    "src",
+    "README.md",
+    "LICENSE"
   ],
   "type": "module",
   "types": "./src/index.ts",
@@ -31,6 +33,9 @@
     ".": "./src/index.ts",
     "./html": "./src/html.ts",
     "./testing": "./src/testing.ts"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "lint": "oxfmt --check && oxlint --report-unused-disable-directives-severity=error",

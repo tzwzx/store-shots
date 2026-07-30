@@ -5,7 +5,7 @@
 
 import path from "node:path";
 
-import { runBuild, runPreview } from "store-shots";
+import { runBuild, runPreview } from "@tzwzx/store-shots";
 
 import { content } from "./content";
 

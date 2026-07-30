@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 
-import { makeTestContext } from "store-shots/testing";
+import { makeTestContext } from "@tzwzx/store-shots/testing";
 
 import { content } from "../examples/showcase/content";
 

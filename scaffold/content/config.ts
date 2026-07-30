@@ -2,8 +2,8 @@
 // This file is the single source of truth for what each screenshot says.
 // Edit freely — extend Slide with any fields your template needs.
 
-import { CANVAS } from "store-shots";
-import type { SlideBase, SpecRow } from "store-shots";
+import { CANVAS } from "@tzwzx/store-shots";
+import type { SlideBase, SpecRow } from "@tzwzx/store-shots";
 
 // A slide describes one screenshot. SlideBase only requires a string `id`.
 export interface Slide extends SlideBase {
