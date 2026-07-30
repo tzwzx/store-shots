@@ -5,4 +5,9 @@
   "duplicates": {
     "minOccurrences": 3,
   },
+  // Confirm dead-code candidates against the TypeScript checker so exported API
+  // is never reported as unused on a name-only match.
+  "typeAware": {
+    "enabled": true,
+  },
 }
