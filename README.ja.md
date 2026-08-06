@@ -24,6 +24,14 @@
 
 この 4 枚の PNG は、架空の ToDo アプリを題材に `runBuild` がそのまま出力したものです（[`examples/showcase`](examples/showcase) 参照）。デバイスフレーム内の「アプリのスクリーンショット」は、テンプレート内の HTML/CSS だけで描かれています。アプリもシミュレーターも画像アセットも不要です。`bun examples/showcase/index.ts build` で再現できます。
 
+そしてこの見た目は、意図的に**一例にすぎません**。以下は*同じ*架空アプリを、フルブリード・エディトリアル・コラージュという対照的な 3 つのアートディレクションで描いたものです。エンジンはレイアウトを一切決めないので、エンジン側の変更はゼロです（[`examples/directions`](examples/directions) 参照）：
+
+<p>
+  <img src="https://raw.githubusercontent.com/tzwzx/store-shots/main/docs/images/direction-1.png" width="195" alt="ディレクションサンプル: フルブリード" />
+  <img src="https://raw.githubusercontent.com/tzwzx/store-shots/main/docs/images/direction-2.png" width="195" alt="ディレクションサンプル: エディトリアル" />
+  <img src="https://raw.githubusercontent.com/tzwzx/store-shots/main/docs/images/direction-3.png" width="195" alt="ディレクションサンプル: コラージュ" />
+</p>
+
 ホットリロード対応のプレビューギャラリー（`bun examples/showcase/index.ts preview`）では、各スライドがオプションの仕様テーブルと並んで表示されます。これは提出物と完全に同一のレンダリングです：
 
 <img src="https://raw.githubusercontent.com/tzwzx/store-shots/main/docs/images/preview-gallery.png" width="820" alt="仕様テーブル付きプレビューギャラリー" />
@@ -134,7 +142,7 @@ bunx store-shots init              # 2. scaffold（/store-shots コマンドも�
 
 ループがうまく回るコツは 2 つ：
 
-1. **`RUNBOOK.md` を最初に一度埋める** — デザインブリーフ（ターゲット・トーン・ストーリー構成・OCR キーワード）、シミュレーターのデバイス、テスト ID、画面ごとの撮影手順。ランブックはエージェントが従う契約書です。具体的であるほどエージェントは聞き返さなくなり、デザインブリーフがエージェントのビジュアル判断をブランドに沿わせます。
+1. **`RUNBOOK.md` を最初に一度埋める** — デザインブリーフ（ターゲット・トーン・レイアウトの方向性・ストーリー構成・OCR キーワード）、シミュレーターのデバイス、テスト ID、画面ごとの撮影手順。ランブックはエージェントが従う契約書です。具体的であるほどエージェントは聞き返さなくなり、デザインブリーフがエージェントのビジュアル判断をブランドに沿わせます。さらにループは「方向性を選ぶ」ステップ（対照的なレイアウト案を 2〜3 枚スケッチ）から始まるので、どのセットもスターターの見た目に収束してしまうことがありません。
 2. **コピーを `config.ts` に集約する** — エージェントが文言とレイアウトを別々に反復でき、ギャラリーの仕様テーブルでレンダリングされたテキストを突合できます。
 
 ### その他のエージェント（Cursor、Codex、Gemini CLI など）

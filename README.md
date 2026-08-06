@@ -24,6 +24,14 @@ A live preview server (open it in a browser, or drive it with Playwright) and th
 
 These four PNGs come straight out of `runBuild` for a fictional to-do app — see [`examples/showcase`](examples/showcase). The "app screenshots" inside the device frames are drawn entirely with HTML/CSS in the template: no app, no simulator, no image assets. Reproduce them with `bun examples/showcase/index.ts build`.
 
+And that look is deliberately just **one** option. Here is the _same_ fictional app in three contrasting art directions — full-bleed, editorial, collage — with zero engine changes, because the engine never dictates layout (see [`examples/directions`](examples/directions)):
+
+<p>
+  <img src="https://raw.githubusercontent.com/tzwzx/store-shots/main/docs/images/direction-1.png" width="195" alt="Direction sample: full-bleed" />
+  <img src="https://raw.githubusercontent.com/tzwzx/store-shots/main/docs/images/direction-2.png" width="195" alt="Direction sample: editorial" />
+  <img src="https://raw.githubusercontent.com/tzwzx/store-shots/main/docs/images/direction-3.png" width="195" alt="Direction sample: collage" />
+</p>
+
 The hot-reloading preview gallery (`bun examples/showcase/index.ts preview`) shows every slide next to its optional spec table, and is the exact same render you ship:
 
 <img src="https://raw.githubusercontent.com/tzwzx/store-shots/main/docs/images/preview-gallery.png" width="820" alt="Preview gallery with spec tables" />
@@ -134,7 +142,7 @@ bunx store-shots init              # 2. scaffold (also generates the /store-shot
 
 Two things make the loop work well:
 
-1. **Fill in `RUNBOOK.md` once** — the design brief (target, tone, story arc, OCR keywords), simulator device, test IDs, per-screen capture steps. The runbook is the contract the agent follows; the more concrete it is, the less it asks — and the design brief is what keeps the agent's visual choices on-brand.
+1. **Fill in `RUNBOOK.md` once** — the design brief (target, tone, layout direction, story arc, OCR keywords), simulator device, test IDs, per-screen capture steps. The runbook is the contract the agent follows; the more concrete it is, the less it asks — and the design brief is what keeps the agent's visual choices on-brand. Its loop also opens with a "Choose a direction" step (2–3 contrasting layout sketches), so sets don't silently converge on the starter's look.
 2. **Keep copy in `config.ts`** — the agent can then iterate on wording and layout separately, and the gallery's spec table lets it cross-check the rendered text.
 
 ### Other agents (Cursor, Codex, Gemini CLI, …)
