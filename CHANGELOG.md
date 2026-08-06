@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-08-06
+
+### Added
+
+- The scaffolded `RUNBOOK.md` now opens its loop with a **"Choose a direction"** step — sketch 2–3 contrasting layout directions on a single slide before refining — and its design brief gains a `Layout direction` row, so generated sets stop converging on the starter's look.
+- [`examples/directions`](https://github.com/tzwzx/store-shots/tree/main/examples/directions) — an art-direction sampler rendering the same fictional app in three contrasting looks (full-bleed, editorial, collage) with zero engine changes, referenced from the runbook and the READMEs.
+
+### Changed
+
+- The scaffolded `template.ts` and `config.ts` comments now show how slides can branch into completely different compositions via a slide field (e.g. `layout`).
+
 ## [1.0.0] - 2026-07-30
 
 ### Added
@@ -18,5 +29,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - `@tzwzx/store-shots/html` — `escapeHtml` and `accentHtml` helpers for templates.
 - `@tzwzx/store-shots/testing` — `makeTestContext`, a render-context test double for unit-testing templates.
 
-[Unreleased]: https://github.com/tzwzx/store-shots/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/tzwzx/store-shots/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/tzwzx/store-shots/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/tzwzx/store-shots/releases/tag/v1.0.0
