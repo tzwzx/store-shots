@@ -23,24 +23,27 @@ The engine never cares where the PNGs come from — only that files land under `
    - Marketing context (e.g. `.agents/product-marketing-context.md`)
    - Screenshot design guide / story / OCR checklist (e.g. `docs/aso/screenshot-guide.md`)
 
-1. **Start preview**: run `bun run store:preview` in the background → `http://localhost:4317`
+1. **Choose a direction** — when starting fresh, or whenever the brief has no `Layout direction`: sketch **2–3 contrasting layout directions** (e.g. device-frame classic / full-bleed screenshot / typography-led) on a single slide, compare them in the preview, pick one, and record it in the [Design brief](#design-brief). The starter template's layout is one option, not the answer — see the [directions sampler](https://github.com/tzwzx/store-shots/tree/main/examples/directions) for how differently the same app can read.
+
+2. **Start preview**: run `bun run store:preview` in the background → `http://localhost:4317`
    - Editing `content/` triggers `--watch` reload. Re-navigate to see the latest.
 
-2. **Overview**: open `/` with Playwright (or similar) and screenshot the gallery (save under `test-results/`)
+3. **Overview**: open `/` with Playwright (or similar) and screenshot the gallery (save under `test-results/`)
    - Cross-check slide count, spec table, story, and OCR coverage against your design guide
    - Optionally run `WebSearch` for current ASO / competitor trends
 
-3. **Per-slide review**: open `/slide/<id>` at full resolution for slides that need work
+4. **Per-slide review**: open `/slide/<id>` at full resolution for slides that need work
 
-4. **Refine**: edit → hot reload → re-navigate (repeat 2–4)
+5. **Refine**: edit → hot reload → re-navigate (repeat 3–5)
    - Copy / colors / badges / structure → `content/config.ts`
    - Layout / design → `content/template.ts`
+   - If every slide still looks like the untouched starter template, go back to step 1 and commit to a stronger direction before polishing.
 
-5. **Ship**: `bun run store:build` → `output/*.png` + `output/index.html` (matches what you saw in preview)
+6. **Ship**: `bun run store:build` → `output/*.png` + `output/index.html` (matches what you saw in preview)
 
-6. **Sync docs** — when copy or structure changes, update your design guide and `config.ts` together; update product spec if features changed
+7. **Sync docs** — when copy or structure changes, update your design guide and `config.ts` together; update product spec if features changed
 
-7. **Cleanup** (browser automation rules):
+8. **Cleanup** (browser automation rules):
    - Stop the preview server
    - Delete review screenshots under `test-results/`
    - Close any headed browser you opened
@@ -55,9 +58,10 @@ The engine never cares where the PNGs come from — only that files land under `
 | Target audience | e.g. busy professionals who live in their calendar |
 | Tone | e.g. calm and trustworthy; no exclamation marks, no emoji |
 | Brand colors | e.g. #1663D9 accents on light backgrounds; dark slide for accent |
+| Layout direction | e.g. full-bleed screenshots, copy on a top scrim — not the starter's centered device frame |
 | Story arc | e.g. 1: value prop → 2: quick capture → 3: dark mode → 4: close |
 | Must-appear OCR keywords | e.g. "to-do list", "widget" |
-| Never do | e.g. no competitor names, no fake review quotes |
+| Never do | e.g. no competitor names, no fake review quotes, no defaulting to the starter layout |
 
 ## Things to remember
 
