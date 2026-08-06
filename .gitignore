@@ -2,3 +2,4 @@ node_modules/
 output/
 docs/superpowers/
 .fallow/
+.claude/work-log.md
