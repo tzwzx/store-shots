@@ -1,6 +1,16 @@
 // Your look: turn one slide into a full HTML document for a single screenshot.
 // The same /slide/:id output drives both preview and build, so what you see is
 // exactly what gets captured. This is the only render point.
+//
+// This starter is ONE possible layout, not the layout. Slides can branch into
+// completely different compositions — add a field to Slide and switch on it:
+//
+//   if (slide.layout === "full-bleed") return fullBleedHtml(slide, ctx);
+//   if (slide.layout === "editorial") return editorialHtml(slide);
+//   return defaultHtml(slide, ctx);
+//
+// Three contrasting directions rendered from the same app:
+// https://github.com/tzwzx/store-shots/tree/main/examples/directions
 
 import type { RenderContext } from "@tzwzx/store-shots";
 import { escapeHtml } from "@tzwzx/store-shots/html";

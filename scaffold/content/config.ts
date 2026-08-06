@@ -6,6 +6,8 @@ import { CANVAS } from "@tzwzx/store-shots";
 import type { SlideBase, SpecRow } from "@tzwzx/store-shots";
 
 // A slide describes one screenshot. SlideBase only requires a string `id`.
+// Add a `layout` field here when slides call for different compositions —
+// the template can branch on it (see the header comment in template.ts).
 export interface Slide extends SlideBase {
   pr: string;
 }
